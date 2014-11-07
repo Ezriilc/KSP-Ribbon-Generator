@@ -29,39 +29,38 @@ $( document ).ready(function(){
     myRibbons = new Object();
     myRibbons.update = function(target,event){
         var splitPatt = /([^\/]*)\/(.*)/ig;
-        
         target.siblings = $(':input[name="'+target.name+'"]');
+// Add "sisters (siblings, exc, for radio type) and brothers (inc, for orbits/landings)"?
         target.siblings.each(function(index){
             var thisSib = target.siblings[index];
             thisSib.groupText = thisSib.name.replace(splitPatt,'$1');
             thisSib.propText = thisSib.name.replace(splitPatt,'$2');
             thisSib.planet = $('.planet-'+thisSib.groupText);
             thisSib.ribbon = $('.ribbon-'+thisSib.groupText);
+            thisSib.layers = thisSib.ribbon.find('[class^="layer-"]');
             if( thisSib.type === 'checkbox' ){
                 thisSib.valText = thisSib.checked;
             }else{
                 thisSib.valText = thisSib.value;
             }
             if( typeof thisSib.valText !== 'boolean' ){
-                thisSib.layer = $(thisSib.ribbon).find('.layer-'+thisSib.valText.replace(/\s+/ig,'_'));
+                thisSib.layer = thisSib.ribbon.find('.layer-'+thisSib.valText.replace(/\s+/ig,'_'));
                 if( thisSib.layer.length ){
                     thisSib.layerText = thisSib.layer.prop('class').replace(/^layer-([^\s]*).*$/,'$1');
-                }else{
-                    thisSib.layerText = '';
-                }
+                }else{ thisSib.layerText = ''; }
             }
         });
         
-        if( ! target.valText || target.valText === "None" ){ // Negative selection.
+        if( target.valText && target.valText !== "None" ){ // Positive selection.
             target.bool = true;
+            $(':input[name="'+target.groupText+'/Achieved"]').prop('checked',true);
+        }else{ // Negative selection.
+            target.bool = false;
             if( target.propText === 'Achieved' ){
                 target.planet.find(':input').prop('checked',false);
                 target.planet.find(':input[value="None"]').prop('checked',true);
                 target.planet.find('select').val('0');
             }
-        }else{ // Positive selection.
-            target.bool = false;
-            $(':input[name="'+target.groupText+'/Achieved"]').prop('checked',true);
         }
         target.achieved = $(':input[name="'+target.groupText+'/Achieved"]').prop('checked');
         if( target.achieved ){
@@ -76,23 +75,30 @@ $( document ).ready(function(){
                     }
                 });
             }else{
-                if( target.bool && target.layer ){
+                if( target.prop === 'Orbits' ){
+                    // Kill all orbits layers.
+                    i=target.valText;while(i--){
+                        // Show layer for i number of orbits.
+                    }
+                }
+                if( target.bool ){
                     makeVis(target.layer);
                 }else{
                     makeInvis(target.layer);
                 }
             }
         }else{
-            makeInvis(target.ribbon);
-            target.layers = target.ribbon.find('[class^="layer-"]');
             makeInvis(target.layers);
+            makeInvis(target.ribbon);
         }
         
-        function makeVis(targets){
-            targets.css('background-color','#eeeeee');
+        function makeVis(JQobj){
+            if( ! JQobj ){ return; }
+            JQobj.css('background-color','green');
         }
-        function makeInvis(targets){
-            targets.css('background-color','#cccccc');
+        function makeInvis(JQobj){
+            if( ! JQobj ){ return; }
+            JQobj.css('background-color','#cccccc');
         }
 $('.debug_display').html(
     'group: '+target.groupText+'\r\n'
