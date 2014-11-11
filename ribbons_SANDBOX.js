@@ -6,13 +6,12 @@ $( document ).ready(function(){
     
     myRibbons = new Object();
     myRibbons.update = function(target,event){
-        var splitPatt = /([^\/]*)\/(.*)/ig;
+        var nameSplitPatt = /^([^\/]*)\/(.*)$/i;
         target.siblings = $(':input[name="'+target.name+'"]');
-// Add "sisters (exclusive choice) for radio, and brothers (inclusive/multi, for select)"?
         target.siblings.each(function(index){
             var thisSib = target.siblings[index];
-            thisSib.groupText = thisSib.name.replace(splitPatt,'$1');
-            thisSib.propText = thisSib.name.replace(splitPatt,'$2');
+            thisSib.groupText = thisSib.name.replace(nameSplitPatt,'$1');
+            thisSib.propText = thisSib.name.replace(nameSplitPatt,'$2');
             thisSib.planet = $('.planet-'+thisSib.groupText);
             thisSib.ribbon = $('.ribbon-'+thisSib.groupText);
             thisSib.layers = thisSib.ribbon.find('[class^="layer-"]');
@@ -28,6 +27,12 @@ $( document ).ready(function(){
                 }else{ thisSib.layerText = ''; }
             }
         });
+        
+        // Effects...
+        if( target.group === 'effects' ){
+            
+        }
+        
         
         if( target.valText && target.valText !== "None" ){ // Positive selection.
             target.bool = true;
@@ -52,31 +57,42 @@ $( document ).ready(function(){
                         makeInvis(thisSib.layer);
                     }
                 });
-            }else{ // NOT radio, including single select.
+            }else{ // NOT radio - includes single select.
                 if(
                     target.propText === 'Orbits'
                     || target.propText === 'Landings'
                 ){
                     target.OL = target.propText.replace(/s$/,'');
-                    target.golds = Math.floor(target.valText / 5);
-                    target.silvers = target.valText - (target.golds * 5);
-                    i=1;while( i <= target.golds ){
-                        makeVis(target.layers.filter('.layer-'+target.OL+'_'+i));
-                        makeInvis(target.layers.filter('.layer-'+target.OL+'_'+i+'_Silver'));
+                    if( target.valText+0 > 0 ){
+                        makeVis( target.layers.filter('.layer-'+target.OL+'_1') );
+                        target.OLrepeats = target.valText - 1;
+                    }else{
+                        makeInvis( target.layers.filter('.layer-'+target.OL+'_1') );
+                        target.OLrepeats = 0;
+                    }
+                    target.silvers = 0;
+                    while( target.OLrepeats > 7 ){
+                        target.silvers++;
+                        target.OLrepeats -= 5;
+                    }
+                    target.golds = target.valText - (target.silvers * 5);
+                    var thisS, thisG;
+                    i=2;while( i <= 8 ){
+                        thisS = target.layers.filter('.layer-'+target.OL+'_'+i+'_Silver');
+                        thisG = target.layers.filter('.layer-'+target.OL+'_'+i);
+                        if( i <= target.silvers+1 ){
+                            makeVis(thisS);
+                            makeInvis(thisG);
+                        }else if( i <= target.silvers + target.golds ){
+                            makeVis(thisG);
+                            makeInvis(thisS);
+                        }else{
+                            makeInvis(thisS);
+                            makeInvis(thisG);
+                        }
                         i++;
                     }
-                    i=1;while( i <= target.silvers ){
-                        makeVis(target.layers.filter('.layer-'+target.OL+'_'+(target.golds+i)+'_Silver'));
-                        makeInvis(target.layers.filter('.layer-'+target.OL+'_'+(target.golds+i)));
-                        i++;
-                    }
-                    i=target.golds+target.silvers+1;
-                    while(i<=8){
-                        makeInvis(target.layers.filter('.layer-'+target.OL+'_'+i));
-                        makeInvis(target.layers.filter('.layer-'+target.OL+'_'+i+'_Silver'));
-                        i++;
-                    }
-                }else{
+                }else{ // NOT orbits or landings - expected checkboxes only.
                     if( target.bool ){
                         makeVis(target.layer);
                     }else{
@@ -101,6 +117,8 @@ $('.debug_display').html(
     'group: '+target.groupText+'\r\n'
     +'prop: '+target.propText+'\r\n'
     +'val: '+target.valText+'\r\n'
+    +'5x: '+target.silvers+'\r\n'
+    +'1x: '+target.golds+'\r\n'
 );
         
     }

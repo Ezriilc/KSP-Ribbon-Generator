@@ -8,22 +8,25 @@
     <script type="text/javascript" src="ribbons_SANDBOX.js"></script>
 </head>
 <body>
-    <div>
+    <div class="ribbons">
         Output:
         <div class="ribbon-Grand_Tour ribbon">
             ribbon-Grand_Tour ribbon
             <br/>
+            <br/>
+            <span class="layer-Orbit_1 layer">Orbit_1</span>
+            <br/>
             <br/>5x:
             <?php
-                for( $i=1; $i <= 8; $i++ ){
-                    echo '<span class="layer-Orbit_'.$i.' layer">'.$i.'</span>';
+                for( $i=2; $i <= 8; $i++ ){
+                    echo '<span class="layer-Orbit_'.$i.'_Silver layer">'.$i.'</span>';
                 }
             ?>
             <br/>
             <br/>1x:
             <?php
-                for( $i=1; $i <= 8; $i++ ){
-                    echo '<span class="layer-Orbit_'.$i.'_Silver layer">'.$i.'</span>';
+                for( $i=2; $i <= 8; $i++ ){
+                    echo '<span class="layer-Orbit_'.$i.' layer">'.$i.'</span>';
                 }
             ?>
             <br/>
@@ -39,15 +42,15 @@
             Effects:
             <div>
                 <label for="id-5">None</label>
-                <input id="id-5" type="radio" name="effect/type" value="None" checked="checked"/>
+                <input id="id-5" type="radio" name="effects/type" value="None" checked="checked"/>
             </div>
             <div>
                 <label for="id-6">Ribbon</label>
-                <input id="id-6" type="radio" name="effect/type" value="Ribbon"/>
+                <input id="id-6" type="radio" name="effects/type" value="Ribbon"/>
             </div>
             <div>
                 <label for="id-7">Bevel</label>
-                <input id="id-7" type="checkbox" name="effect/Bevel" value="Bevel"/>
+                <input id="id-7" type="checkbox" name="effects/Bevel" value="Bevel"/>
             </div>
         </div>
         <hr/>
@@ -62,7 +65,7 @@
                 <select id="id-1" name="Grand_Tour/Orbits">
                     <option selected="selected">0</option>
                     <?php
-                        for( $i=1; $i <= 40; $i++ ){
+                        for( $i=1; $i <= 16; $i++ ){
                             echo '<option>'.$i.'</option>\r\n';
                         }
                     ?>
