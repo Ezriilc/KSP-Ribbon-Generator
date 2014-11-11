@@ -1,6 +1,15 @@
 $(document).ready(function(){
+    $('.ribbons .planet').fadeOut(0);
+    $('.ribbons input[type="submit"]').fadeOut(0);
     
-    $('form.ribbons :input').change(function(event){
+    $('.ribbons .ribbon').click(function(event){
+        $('.ribbons input[type="submit"]').fadeIn(0);
+        var planetText = this.className.replace(/^ribbon-([^\s]*).*$/,'$1');
+        $('.ribbons .planet').not('.planet-'+planetText).fadeTo('slow',0);
+        $('.ribbons .planet-'+planetText).fadeTo('slow',1);
+    });
+    
+    $('.ribbons :input').change(function(event){
         myRibbons.update(this,event);
     });
     
@@ -9,11 +18,13 @@ $(document).ready(function(){
         var nameSplitPatt = /^([^\/]*)\/(.*)$/i;
         function makeVis(JQobj){
             if( ! JQobj ){ return; }
-            JQobj.css('background-color','green');
+            JQobj.fadeTo('slow',1);
+            JQobj.addClass('selected');
         }
         function makeInvis(JQobj){
             if( ! JQobj ){ return; }
-            JQobj.css('background-color','#cccccc');
+            JQobj.fadeTo('slow',0);
+            JQobj.removeClass('selected');
         }
         target.siblings = $(':input[name="'+target.name+'"]'); // Siblings include self.
         target.siblings.each(function(index){
@@ -32,9 +43,9 @@ $(document).ready(function(){
             }
             if( thisSib.groupText === 'effects' ){
                 if( thisSib.type !== 'checkbox' ){
-                    thisSib.effects = $('div.ribbons .effect-'+thisSib.valText.replace(/\s+/ig,'_'));
+                    thisSib.effects = $('.ribbons .effect-'+thisSib.valText.replace(/\s+/ig,'_'));
                 }else{
-                    thisSib.effects = $('div.ribbons .effect-'+thisSib.propText);
+                    thisSib.effects = $('.ribbons .effect-'+thisSib.propText);
                 }
             }else{
                 thisSib.planet = $('.planet-'+thisSib.groupText);
@@ -51,6 +62,7 @@ $(document).ready(function(){
         if( target.groupText === 'effects' ){
             target.siblings.each(function(index){
                 var thisSib = target.siblings[index];
+                if( thisSib === target ){ return; }
                 makeInvis(thisSib.effects);
             });
         }
@@ -58,6 +70,7 @@ $(document).ready(function(){
             makeVis(target.effects);
             $(':input[name="'+target.groupText+'/Achieved"]').prop('checked',true);
         }else{
+            makeInvis(target.effects);
             if( target.propText === 'Achieved' ){
                 target.planet.find(':input').prop('checked',false);
                 target.planet.find(':input[value="None"]').prop('checked',true);
@@ -67,10 +80,15 @@ $(document).ready(function(){
         target.achieved = $(':input[name="'+target.groupText+'/Achieved"]').prop('checked');
         if( ! target.achieved ){
             makeInvis(target.devices);
-            makeInvis(target.ribbon);
+            if( target.ribbon ){
+                target.ribbon.fadeTo('slow',0.5);
+                target.ribbon.removeClass('selected');
+            }
             return;
         }
-        makeVis(target.ribbon);
+        
+        target.ribbon.fadeTo('slow',1);
+        target.ribbon.addClass('selected');
         if( target.siblings.length > 1 ){ // Radio.
             target.siblings.each(function(index){
                 var thisSib = target.siblings[index];

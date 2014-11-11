@@ -9,40 +9,37 @@
 </head>
 <body>
     <div class="ribbons">
-        Output:
-        <span class="ribbon-Grand_Tour" style="display:inline-block;">
+        <span class="ribbon-Grand_Tour ribbon" style="display:inline-block; border:1px solid black;">
             ribbon-Grand_Tour
             <br/>
             <br/>
-            <span class="effect-Ribbon">Ribbon</span>
-            <span class="effect-HC">HC</span>
-            <span class="effect-Lighten_Bevel">Bevel</span>
+            <span class="effect-Ribbon effect">Ribbon</span>
+            <span class="effect-HC effect">HC</span>
+            <span class="effect-Lighten_Bevel effect">Bevel</span>
             <br/>
             <br/>
-            <span class="device-Orbit_1">Orbit_1</span>
+            <span class="device-Orbit_1 device">Orbit_1</span>
             <br/>
             <br/>5x:
             <?php
                 for( $i=2; $i <= 8; $i++ ){
-                    echo '<span class="device-Orbit_'.$i.'_Silver">'.$i.'</span>';
+                    echo '<span class="device-Orbit_'.$i.'_Silver device">'.$i.'</span>';
                 }
             ?>
             <br/>
             <br/>1x:
             <?php
                 for( $i=2; $i <= 8; $i++ ){
-                    echo '<span class="device-Orbit_'.$i.'">'.$i.'</span>';
+                    echo '<span class="device-Orbit_'.$i.' device">'.$i.'</span>';
                 }
             ?>
             <br/>
             <br/>
-            <span class="device-Aircraft">Aircraft</span>
-            <span class="device-Multi-Part_Ship">Multi-Part Ship</span>
+            <span class="device-Aircraft device">Aircraft</span>
+            <span class="device-Multi-Part_Ship device">Multi-Part Ship</span>
         </span>
     </div>
-    <hr/>
     <form class="ribbons" method="post"><fieldset>
-        ribbons_form
         <div>
             Effects:
             <div>
@@ -62,8 +59,8 @@
                 <input id="id-7" type="checkbox" name="effects/Lighten_Bevel"/>
             </div>
         </div>
-        <hr/>
         <div class="planet-Grand_Tour planet">
+            <hr/>
             planet-Grand_Tour planet
             <div>
                 <label for="id-0">Achieved</label>
@@ -95,8 +92,9 @@
                     <input id="id-4" type="radio" name="Grand_Tour/craft" value="Multi-Part Ship"/>
                 </div>
             </div>
+            <hr/>
         </div>
-        <input type="submit"/>
+        <input type="submit" style=""/>
     </fieldset></form>
 
     <pre class="debug_display" style="

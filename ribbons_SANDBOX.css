@@ -1,13 +1,20 @@
-div,pre,span{
-    border:1px solid black;
-    margin:5px;
-    padding:5px;
+.ribbons .ribbon{
+    opacity:0.5;
 }
-form.ribbons{
-    border:3px double black;
-    margin:5px;
-    padding:5px;
+.ribbons .ribbon.selected{
+    opacity:1;
 }
-span{
-    background-color:#cccccc;
+.ribbons .device,
+.ribbons .effect{
+    visibility:hidden;
+}
+.ribbons .device.selected,
+.ribbons .effect.selected{
+    visibility:visible;
+}
+.ribbons .planet{
+    display:none;
+}
+.ribbons .planet.selected{
+    display:block;
 }
