@@ -14,25 +14,30 @@
             ribbon-Grand_Tour ribbon
             <br/>
             <br/>
-            <span class="layer-Orbit_1 layer">Orbit_1</span>
+            <span class="effect-Ribbon layer">Ribbon</span>
+            <span class="effect-HC layer">HC</span>
+            <span class="effect-Lighten_Bevel layer">Bevel</span>
+            <br/>
+            <br/>
+            <span class="device-Orbit_1 layer">Orbit_1</span>
             <br/>
             <br/>5x:
             <?php
                 for( $i=2; $i <= 8; $i++ ){
-                    echo '<span class="layer-Orbit_'.$i.'_Silver layer">'.$i.'</span>';
+                    echo '<span class="device-Orbit_'.$i.'_Silver layer">'.$i.'</span>';
                 }
             ?>
             <br/>
             <br/>1x:
             <?php
                 for( $i=2; $i <= 8; $i++ ){
-                    echo '<span class="layer-Orbit_'.$i.' layer">'.$i.'</span>';
+                    echo '<span class="device-Orbit_'.$i.' layer">'.$i.'</span>';
                 }
             ?>
             <br/>
             <br/>
-            <span class="layer-Aircraft layer">Aircraft</span>
-            <span class="layer-Multi-Part_Ship layer">Multi-Part Ship</span>
+            <span class="device-Aircraft layer">Aircraft</span>
+            <span class="device-Multi-Part_Ship layer">Multi-Part Ship</span>
         </div>
     </div>
     <hr/>
@@ -49,8 +54,12 @@
                 <input id="id-6" type="radio" name="effects/type" value="Ribbon"/>
             </div>
             <div>
-                <label for="id-7">Bevel</label>
-                <input id="id-7" type="checkbox" name="effects/Bevel" value="Bevel"/>
+                <label for="id-8">HC</label>
+                <input id="id-8" type="radio" name="effects/type" value="HC"/>
+            </div>
+            <div>
+                <label for="id-7">Lighten Bevel</label>
+                <input id="id-7" type="checkbox" name="effects/Lighten_Bevel"/>
             </div>
         </div>
         <hr/>
@@ -90,7 +99,11 @@
         <input type="submit"/>
     </fieldset></form>
 
-    <pre class="debug_display">debug_display</pre>
+    <pre class="debug_display" style="
+        position:fixed;
+        top:0;right:0;
+        background-color:white;
+    ">debug_display</pre>
     <?php var_dump(@$_POST); ?>
 </body>
 </html>

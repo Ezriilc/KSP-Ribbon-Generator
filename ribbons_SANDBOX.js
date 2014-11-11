@@ -7,38 +7,57 @@ $( document ).ready(function(){
     myRibbons = new Object();
     myRibbons.update = function(target,event){
         var nameSplitPatt = /^([^\/]*)\/(.*)$/i;
-        target.siblings = $(':input[name="'+target.name+'"]');
+        function makeVis(JQobj){
+            if( ! JQobj ){ return; }
+            JQobj.css('background-color','green');
+        }
+        function makeInvis(JQobj){
+            if( ! JQobj ){ return; }
+            JQobj.css('background-color','#cccccc');
+        }
+        target.siblings = $(':input[name="'+target.name+'"]'); // Siblings include the target.
         target.siblings.each(function(index){
             var thisSib = target.siblings[index];
             thisSib.groupText = thisSib.name.replace(nameSplitPatt,'$1');
             thisSib.propText = thisSib.name.replace(nameSplitPatt,'$2');
-            thisSib.planet = $('.planet-'+thisSib.groupText);
-            thisSib.ribbon = $('.ribbon-'+thisSib.groupText);
-            thisSib.layers = thisSib.ribbon.find('[class^="layer-"]');
             if( thisSib.type === 'checkbox' ){
                 thisSib.valText = thisSib.checked;
             }else{
                 thisSib.valText = thisSib.value;
             }
-            if( typeof thisSib.valText !== 'boolean' ){
-                thisSib.layer = thisSib.ribbon.find('.layer-'+thisSib.valText.replace(/\s+/ig,'_'));
-                if( thisSib.layer.length ){
-                    thisSib.layerText = thisSib.layer.prop('class').replace(/^layer-([^\s]*).*$/,'$1');
-                }else{ thisSib.layerText = ''; }
+            if( thisSib.valText && thisSib.valText !== 'None' ){
+                thisSib.bool = true;
+            }else{
+                thisSib.bool = false;
+            }
+            if( thisSib.groupText === 'effects' ){
+                if( thisSib.type !== 'checkbox' ){
+                    thisSib.effects = $('div.ribbons .effect-'+thisSib.valText.replace(/\s+/ig,'_'));
+                }else{
+                    thisSib.effects = $('div.ribbons .effect-'+thisSib.propText);
+                }
+            }else{
+                thisSib.planet = $('.planet-'+thisSib.groupText);
+                thisSib.ribbon = $('.ribbon-'+thisSib.groupText);
+                thisSib.devices = thisSib.ribbon.find('[class^="device-"]');
+                if( typeof thisSib.valText !== 'boolean' ){
+                    thisSib.device = thisSib.ribbon.find('.device-'+thisSib.valText.replace(/\s+/ig,'_'));
+                    if( thisSib.device.length ){
+                        thisSib.deviceText = thisSib.device.prop('class').replace(/^device-([^\s]*).*$/,'$1');
+                    }else{ thisSib.deviceText = ''; }
+                }
             }
         });
-        
-        // Effects...
-        if( target.group === 'effects' ){
-            
+        if( target.groupText === 'effects' ){
+            target.siblings.each(function(index){
+                var thisSib = target.siblings[index];
+                makeInvis(thisSib.effects);
+            });
         }
-        
-        
-        if( target.valText && target.valText !== "None" ){ // Positive selection.
-            target.bool = true;
+        if( target.bool ){
+            makeVis(target.effects);
             $(':input[name="'+target.groupText+'/Achieved"]').prop('checked',true);
-        }else{ // Negative selection.
-            target.bool = false;
+        }else{
             if( target.propText === 'Achieved' ){
                 target.planet.find(':input').prop('checked',false);
                 target.planet.find(':input[value="None"]').prop('checked',true);
@@ -51,10 +70,10 @@ $( document ).ready(function(){
             if( target.siblings.length > 1 ){ // Radio.
                 target.siblings.each(function(index){
                     var thisSib = target.siblings[index];
-                    if( thisSib.layerText && thisSib.layerText === target.layerText ){
-                        makeVis(thisSib.layer);
+                    if( thisSib.deviceText && thisSib.deviceText === target.deviceText ){
+                        makeVis(thisSib.device);
                     }else{
-                        makeInvis(thisSib.layer);
+                        makeInvis(thisSib.device);
                     }
                 });
             }else{ // NOT radio - includes single select.
@@ -64,10 +83,10 @@ $( document ).ready(function(){
                 ){
                     target.OL = target.propText.replace(/s$/,'');
                     if( target.valText+0 > 0 ){
-                        makeVis( target.layers.filter('.layer-'+target.OL+'_1') );
+                        makeVis( target.devices.filter('.device-'+target.OL+'_1') );
                         target.OLrepeats = target.valText - 1;
                     }else{
-                        makeInvis( target.layers.filter('.layer-'+target.OL+'_1') );
+                        makeInvis( target.devices.filter('.device-'+target.OL+'_1') );
                         target.OLrepeats = 0;
                     }
                     target.silvers = 0;
@@ -78,8 +97,8 @@ $( document ).ready(function(){
                     target.golds = target.valText - (target.silvers * 5);
                     var thisS, thisG;
                     i=2;while( i <= 8 ){
-                        thisS = target.layers.filter('.layer-'+target.OL+'_'+i+'_Silver');
-                        thisG = target.layers.filter('.layer-'+target.OL+'_'+i);
+                        thisS = target.devices.filter('.device-'+target.OL+'_'+i+'_Silver');
+                        thisG = target.devices.filter('.device-'+target.OL+'_'+i);
                         if( i <= target.silvers+1 ){
                             makeVis(thisS);
                             makeInvis(thisG);
@@ -94,31 +113,21 @@ $( document ).ready(function(){
                     }
                 }else{ // NOT orbits or landings - expected checkboxes only.
                     if( target.bool ){
-                        makeVis(target.layer);
+                        makeVis(target.device);
                     }else{
-                        makeInvis(target.layer);
+                        makeInvis(target.device);
                     }
                 }
             }
         }else{
-            makeInvis(target.layers);
+            makeInvis(target.devices);
             makeInvis(target.ribbon);
         }
         
-        function makeVis(JQobj){
-            if( ! JQobj ){ return; }
-            JQobj.css('background-color','green');
-        }
-        function makeInvis(JQobj){
-            if( ! JQobj ){ return; }
-            JQobj.css('background-color','#cccccc');
-        }
 $('.debug_display').html(
     'group: '+target.groupText+'\r\n'
     +'prop: '+target.propText+'\r\n'
     +'val: '+target.valText+'\r\n'
-    +'5x: '+target.silvers+'\r\n'
-    +'1x: '+target.golds+'\r\n'
 );
         
     }
