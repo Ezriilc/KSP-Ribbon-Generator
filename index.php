@@ -2,117 +2,38 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>jQuery Demo</title>
-    <style type="text/css">
-        div,pre,span{
-            border:1px solid black;
-            margin:5px;
-            padding:5px;
-        }
-        form{
-            border:3px double black;
-            margin:5px;
-            padding:5px;
-        }
-        .layer,.ribbon{
-            background-color:#cccccc;
-        }
-    </style>
+    <title>KSP Ribbons SANDBOX</title>
+    <link rel="stylesheet" type="text/css" href="ribbons_SANDBOX.css"/>
     <script type="text/javascript" src="jquery-2.1.1.js"></script>
-<script type="text/javascript">
-$( document ).ready(function(){
-    
-    $('form#ribbons_form :input').change(function(event){
-        myRibbons.update(this,event);
-    });
-    
-    myRibbons = new Object();
-    myRibbons.update = function(target,event){
-        var splitPatt = /([^\/]*)\/(.*)/ig;
-        target.siblings = $(':input[name="'+target.name+'"]');
-// Add "sisters (siblings, exc, for radio type) and brothers (inc, for orbits/landings)"?
-        target.siblings.each(function(index){
-            var thisSib = target.siblings[index];
-            thisSib.groupText = thisSib.name.replace(splitPatt,'$1');
-            thisSib.propText = thisSib.name.replace(splitPatt,'$2');
-            thisSib.planet = $('.planet-'+thisSib.groupText);
-            thisSib.ribbon = $('.ribbon-'+thisSib.groupText);
-            thisSib.layers = thisSib.ribbon.find('[class^="layer-"]');
-            if( thisSib.type === 'checkbox' ){
-                thisSib.valText = thisSib.checked;
-            }else{
-                thisSib.valText = thisSib.value;
-            }
-            if( typeof thisSib.valText !== 'boolean' ){
-                thisSib.layer = thisSib.ribbon.find('.layer-'+thisSib.valText.replace(/\s+/ig,'_'));
-                if( thisSib.layer.length ){
-                    thisSib.layerText = thisSib.layer.prop('class').replace(/^layer-([^\s]*).*$/,'$1');
-                }else{ thisSib.layerText = ''; }
-            }
-        });
-        
-        if( target.valText && target.valText !== "None" ){ // Positive selection.
-            target.bool = true;
-            $(':input[name="'+target.groupText+'/Achieved"]').prop('checked',true);
-        }else{ // Negative selection.
-            target.bool = false;
-            if( target.propText === 'Achieved' ){
-                target.planet.find(':input').prop('checked',false);
-                target.planet.find(':input[value="None"]').prop('checked',true);
-                target.planet.find('select').val('0');
-            }
-        }
-        target.achieved = $(':input[name="'+target.groupText+'/Achieved"]').prop('checked');
-        if( target.achieved ){
-            makeVis(target.ribbon);
-            if( target.siblings.length > 1 ){ // Is radio.
-                target.siblings.each(function(index){
-                    var thisSib = target.siblings[index];
-                    if( thisSib.layerText && thisSib.layerText === target.layerText ){
-                        makeVis(thisSib.layer);
-                    }else{
-                        makeInvis(thisSib.layer);
-                    }
-                });
-            }else{
-                if( target.prop === 'Orbits' ){
-                    // Kill all orbits layers.
-                    i=target.valText;while(i--){
-                        // Show layer for i number of orbits.
-                    }
-                }
-                if( target.bool ){
-                    makeVis(target.layer);
-                }else{
-                    makeInvis(target.layer);
-                }
-            }
-        }else{
-            makeInvis(target.layers);
-            makeInvis(target.ribbon);
-        }
-        
-        function makeVis(JQobj){
-            if( ! JQobj ){ return; }
-            JQobj.css('background-color','green');
-        }
-        function makeInvis(JQobj){
-            if( ! JQobj ){ return; }
-            JQobj.css('background-color','#cccccc');
-        }
-$('.debug_display').html(
-    'group: '+target.groupText+'\r\n'
-    +'prop: '+target.propText+'\r\n'
-    +'val: '+target.valText+'\r\n'
-);
-        
-    }
-    
-});
-</script>
+    <script type="text/javascript" src="ribbons_SANDBOX.js"></script>
 </head>
 <body>
-    <form id="ribbons_form" method="post"><fieldset>
+    <div>
+        Output:
+        <div class="ribbon-Grand_Tour ribbon">
+            ribbon-Grand_Tour ribbon
+            <br/>
+            <br/>5x:
+            <?php
+                for( $i=1; $i <= 8; $i++ ){
+                    echo '<span class="layer-Orbit_'.$i.' layer">'.$i.'</span>';
+                }
+            ?>
+            <br/>
+            <br/>1x:
+            <?php
+                for( $i=1; $i <= 8; $i++ ){
+                    echo '<span class="layer-Orbit_'.$i.'_Silver layer">'.$i.'</span>';
+                }
+            ?>
+            <br/>
+            <br/>
+            <span class="layer-Aircraft layer">Aircraft</span>
+            <span class="layer-Multi-Part_Ship layer">Multi-Part Ship</span>
+        </div>
+    </div>
+    <hr/>
+    <form class="ribbons" method="post"><fieldset>
         ribbons_form
         <div>
             Effects:
@@ -124,36 +45,28 @@ $('.debug_display').html(
                 <label for="id-6">Ribbon</label>
                 <input id="id-6" type="radio" name="effect/type" value="Ribbon"/>
             </div>
-        </div>
-        <hr/>
-        <div>
-            Output:
-            <div class="ribbon-Grand_Tour ribbon">
-                ribbon-Grand_Tour ribbon
-                <span class="layer-Orbit-1 layer">Orbit-1</span>
-                <span class="layer-Orbit-2 layer">Orbit-2</span>
-                <span class="layer-Orbit-3 layer">Orbit-3</span>
-                <span class="layer-Aircraft layer">Aircraft</span>
-                <span class="layer-Multi-Part_Ship layer">Multi-Part Ship</span>
+            <div>
+                <label for="id-7">Bevel</label>
+                <input id="id-7" type="checkbox" name="effect/Bevel" value="Bevel"/>
             </div>
         </div>
         <hr/>
         <div class="planet-Grand_Tour planet">
             planet-Grand_Tour planet
             <div>
-                <div>
-                    <label for="id-0">Achieved</label>
-                    <input id="id-0" type="checkbox" name="Grand_Tour/Achieved"/>
-                </div>
-                <div>
-                    <label for="id-1">Orbits</label>
-                    <select id="id-1" name="Grand_Tour/Orbits">
-                        <option selected="selected">0</option>
-                        <option>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                    </select>
-                </div>
+                <label for="id-0">Achieved</label>
+                <input id="id-0" type="checkbox" name="Grand_Tour/Achieved"/>
+            </div>
+            <div>
+                <label for="id-1">Orbits</label>
+                <select id="id-1" name="Grand_Tour/Orbits">
+                    <option selected="selected">0</option>
+                    <?php
+                        for( $i=1; $i <= 40; $i++ ){
+                            echo '<option>'.$i.'</option>\r\n';
+                        }
+                    ?>
+                </select>
             </div>
             <div>
                 Craft:
