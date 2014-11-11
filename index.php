@@ -10,35 +10,35 @@
 <body>
     <div class="ribbons">
         Output:
-        <div class="ribbon-Grand_Tour ribbon">
-            ribbon-Grand_Tour ribbon
+        <span class="ribbon-Grand_Tour" style="display:inline-block;">
+            ribbon-Grand_Tour
             <br/>
             <br/>
-            <span class="effect-Ribbon layer">Ribbon</span>
-            <span class="effect-HC layer">HC</span>
-            <span class="effect-Lighten_Bevel layer">Bevel</span>
+            <span class="effect-Ribbon">Ribbon</span>
+            <span class="effect-HC">HC</span>
+            <span class="effect-Lighten_Bevel">Bevel</span>
             <br/>
             <br/>
-            <span class="device-Orbit_1 layer">Orbit_1</span>
+            <span class="device-Orbit_1">Orbit_1</span>
             <br/>
             <br/>5x:
             <?php
                 for( $i=2; $i <= 8; $i++ ){
-                    echo '<span class="device-Orbit_'.$i.'_Silver layer">'.$i.'</span>';
+                    echo '<span class="device-Orbit_'.$i.'_Silver">'.$i.'</span>';
                 }
             ?>
             <br/>
             <br/>1x:
             <?php
                 for( $i=2; $i <= 8; $i++ ){
-                    echo '<span class="device-Orbit_'.$i.' layer">'.$i.'</span>';
+                    echo '<span class="device-Orbit_'.$i.'">'.$i.'</span>';
                 }
             ?>
             <br/>
             <br/>
-            <span class="device-Aircraft layer">Aircraft</span>
-            <span class="device-Multi-Part_Ship layer">Multi-Part Ship</span>
-        </div>
+            <span class="device-Aircraft">Aircraft</span>
+            <span class="device-Multi-Part_Ship">Multi-Part Ship</span>
+        </span>
     </div>
     <hr/>
     <form class="ribbons" method="post"><fieldset>

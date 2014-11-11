@@ -8,6 +8,6 @@ form.ribbons{
     margin:5px;
     padding:5px;
 }
-.layer,.ribbon{
+span{
     background-color:#cccccc;
 }

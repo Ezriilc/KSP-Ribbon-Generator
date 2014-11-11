@@ -1,4 +1,4 @@
-$( document ).ready(function(){
+$(document).ready(function(){
     
     $('form.ribbons :input').change(function(event){
         myRibbons.update(this,event);
@@ -15,7 +15,7 @@ $( document ).ready(function(){
             if( ! JQobj ){ return; }
             JQobj.css('background-color','#cccccc');
         }
-        target.siblings = $(':input[name="'+target.name+'"]'); // Siblings include the target.
+        target.siblings = $(':input[name="'+target.name+'"]'); // Siblings include self.
         target.siblings.each(function(index){
             var thisSib = target.siblings[index];
             thisSib.groupText = thisSib.name.replace(nameSplitPatt,'$1');
@@ -41,7 +41,7 @@ $( document ).ready(function(){
                 thisSib.ribbon = $('.ribbon-'+thisSib.groupText);
                 thisSib.devices = thisSib.ribbon.find('[class^="device-"]');
                 if( typeof thisSib.valText !== 'boolean' ){
-                    thisSib.device = thisSib.ribbon.find('.device-'+thisSib.valText.replace(/\s+/ig,'_'));
+                    thisSib.device = thisSib.devices.filter('.device-'+thisSib.valText.replace(/\s+/ig,'_'));
                     if( thisSib.device.length ){
                         thisSib.deviceText = thisSib.device.prop('class').replace(/^device-([^\s]*).*$/,'$1');
                     }else{ thisSib.deviceText = ''; }
@@ -65,63 +65,63 @@ $( document ).ready(function(){
             }
         }
         target.achieved = $(':input[name="'+target.groupText+'/Achieved"]').prop('checked');
-        if( target.achieved ){
-            makeVis(target.ribbon);
-            if( target.siblings.length > 1 ){ // Radio.
-                target.siblings.each(function(index){
-                    var thisSib = target.siblings[index];
-                    if( thisSib.deviceText && thisSib.deviceText === target.deviceText ){
-                        makeVis(thisSib.device);
-                    }else{
-                        makeInvis(thisSib.device);
-                    }
-                });
-            }else{ // NOT radio - includes single select.
-                if(
-                    target.propText === 'Orbits'
-                    || target.propText === 'Landings'
-                ){
-                    target.OL = target.propText.replace(/s$/,'');
-                    if( target.valText+0 > 0 ){
-                        makeVis( target.devices.filter('.device-'+target.OL+'_1') );
-                        target.OLrepeats = target.valText - 1;
-                    }else{
-                        makeInvis( target.devices.filter('.device-'+target.OL+'_1') );
-                        target.OLrepeats = 0;
-                    }
-                    target.silvers = 0;
-                    while( target.OLrepeats > 7 ){
-                        target.silvers++;
-                        target.OLrepeats -= 5;
-                    }
-                    target.golds = target.valText - (target.silvers * 5);
-                    var thisS, thisG;
-                    i=2;while( i <= 8 ){
-                        thisS = target.devices.filter('.device-'+target.OL+'_'+i+'_Silver');
-                        thisG = target.devices.filter('.device-'+target.OL+'_'+i);
-                        if( i <= target.silvers+1 ){
-                            makeVis(thisS);
-                            makeInvis(thisG);
-                        }else if( i <= target.silvers + target.golds ){
-                            makeVis(thisG);
-                            makeInvis(thisS);
-                        }else{
-                            makeInvis(thisS);
-                            makeInvis(thisG);
-                        }
-                        i++;
-                    }
-                }else{ // NOT orbits or landings - expected checkboxes only.
-                    if( target.bool ){
-                        makeVis(target.device);
-                    }else{
-                        makeInvis(target.device);
-                    }
-                }
-            }
-        }else{
+        if( ! target.achieved ){
             makeInvis(target.devices);
             makeInvis(target.ribbon);
+            return;
+        }
+        makeVis(target.ribbon);
+        if( target.siblings.length > 1 ){ // Radio.
+            target.siblings.each(function(index){
+                var thisSib = target.siblings[index];
+                if( thisSib.deviceText && thisSib.deviceText === target.deviceText ){
+                    makeVis(thisSib.device);
+                }else{
+                    makeInvis(thisSib.device);
+                }
+            });
+        }else{ // NOT radio - includes single select.
+            if(
+                target.propText === 'Orbits'
+                || target.propText === 'Landings'
+            ){
+                target.OL = target.propText.replace(/s$/,'');
+                if( target.valText+0 > 0 ){
+                    makeVis( target.devices.filter('.device-'+target.OL+'_1') );
+                    target.OLrepeats = target.valText - 1;
+                }else{
+                    makeInvis( target.devices.filter('.device-'+target.OL+'_1') );
+                    target.OLrepeats = 0;
+                }
+                target.silvers = 0;
+                while( target.OLrepeats > 7 ){
+                    target.silvers++;
+                    target.OLrepeats -= 5;
+                }
+                target.golds = target.valText - (target.silvers * 5);
+                var thisS, thisG;
+                i=2;while( i <= 8 ){
+                    thisS = target.devices.filter('.device-'+target.OL+'_'+i+'_Silver');
+                    thisG = target.devices.filter('.device-'+target.OL+'_'+i);
+                    if( i <= target.silvers+1 ){
+                        makeVis(thisS);
+                        makeInvis(thisG);
+                    }else if( i <= target.silvers + target.golds ){
+                        makeVis(thisG);
+                        makeInvis(thisS);
+                    }else{
+                        makeInvis(thisS);
+                        makeInvis(thisG);
+                    }
+                    i++;
+                }
+            }else{ // NOT orbits or landings - still NOT radio.
+                if( target.bool ){
+                    makeVis(target.device);
+                }else{
+                    makeInvis(target.device);
+                }
+            }
         }
         
 $('.debug_display').html(
