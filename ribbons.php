@@ -142,59 +142,41 @@ class RIBBONS{
             }
         }
         
-        static::$output .= $this->get_form();
+        static::$output .= $this->get_ribbons();
         
     }
     
-    private function get_form(){
-        $form = '';
-        $form .= '
-<div class="ribbons">';
+    private function get_ribbons(){
+        $return = '';
+        $return .= '<div class="ribbons">';
         $i=0;
         foreach( static::$planets as $planet => $attribs ){
             $i++;
             if( ($i-1) % 3 === 0 ){
                 if( $i > 1 ){
-                    $form .= '
+                    $return .= '
     </div>';
                 }
-                $form .= '
-    <div style="float:left; text-align:center; width:120px;">';
+                $return .= '
+    <div class="column">';
             }
             $image = static::$images_root.'/ribbons/'.$planet.'.png';
-            $height = '32px';
+            $height = '';
             if( $planet === 'Grand Tour' ){
                 $image = static::$images_root.'/ribbons/shield/Base Colours.png';
-                $height = '96px';
+                $height = 'height:96px;line-height:96px;';
             }
             
             if( is_readable($image) && ! is_dir($image) ){
-                $image = ' background-image:url(\''.$image.'\');';
+                $image = 'background-image:url(\''.$image.'\');';
             }else{ $image = ''; }
-            $form .= '
-        <div class="ribbon" style="position:relative; width:100%;height:'.$height.';line-height:'.$height.';'.$image.'">';
-            // Ribbon guts.
-            foreach( static::$effects as $val ){
-                foreach( $val as $effect ){
-                    $image = static::$images_root.'/ribbons';
-                    if( $planet === 'Grand Tour' ){ $image .= '/shield'; }
-                    $image .= '/'.$effect.'.png';
-                    if( is_readable($image) && ! is_dir($image) ){
-                        $display = ' display:none;';
-//                        $display = '';
-                        if(
-                            $effect === 'Ribbon'
-                            || @$selected // Check for default or posted value.
-                        ){ $display = ''; }
-                        $image = '
-            <img alt="'.$image.'" src="'.$image.'" style="position:absolute;top:0;left:0;'.$display.'"/>';
-                    }else{ $image = ''; }
-                    $form .= $image;
-                }
-            }
+            $return .= '
+        <div class="ribbon" style="'.$height.$image.'">';
+        
+            // BEGIN Ribbon guts.
             
-            // Devices in order of display: Category => Type => Device => Priority, Description.
             foreach( static::$devices_ordered as $device ){
+                // Devices in order of priority.
                 $name = $device[0];
                 $type = $device[1];
                 $cat = $device[2];
@@ -208,34 +190,31 @@ class RIBBONS{
                 if( $planet === 'Grand Tour' ){ $image .= '/shield'; }
                 $image .= '/'.$name.'.png';
                 if( is_readable($image) && ! is_dir($image) ){
-                    $display = ' display:none;';
-//                    $display = '';
-                    if(
-                        @$selected // Check for default or posted value.
-                    ){ $display = ''; }
+                    if( // Check for default or posted value.
+                        @$effect === 'Ribbon'
+                    ){
+                        $selected = ' class="selected"';
+                    }else{ $selected = ''; }
                     $image = '
-            <img alt="'.$image.'" src="'.$image.'" style="position:absolute;top:0;left:0;'.$display.'"/>';
+            <img alt="'.$name.'" src="'.$image.'"'.$selected.'/>';
                 }else{ $image = ''; }
-                $form .= $image;
+                $return .= $image;
             }
             
             if( $planet === 'Grand Tour' ){
                 foreach( static::$planets as $planet2 => $attribs ){
                     if( $planet2 === 'Grand Tour' ){ continue; }
                     $image = static::$images_root.'/ribbons/shield/'.$planet2.' Visit.png';
-                    if( ! is_readable($image) ){
-                        $image = static::$images_root.'/ribbons/shield/'.$planet2.'Visit.png';
-                    }
                     if( is_readable($image) && ! is_dir($image) ){
-                        $display = ' display:none;';
-//                        $display = '';
-                        if(
-                            @$selected // Check for default or posted value.
-                        ){ $display = ''; }
+                        if( // Check for default or posted value.
+                            @$effect === 'Ribbon'
+                        ){
+                            $selected = ' class="selected"';
+                        }else{ $selected = ''; }
                         $image = '
-            <img alt="'.$image.'" src="'.$image.'" style="position:absolute;top:0;left:0;'.$display.'"/>';
+            <img alt="'.$planet2.'" src="'.$image.'"'.$selected.'/>';
                     }else{ $image = ''; }
-                    $form .= $image;
+                    $return .= $image;
                 }
                 
                 $i=1;while($i <= 8){
@@ -243,30 +222,49 @@ class RIBBONS{
                         foreach( array('',' Silver') as $each2 ){
                             $image = static::$images_root.'/ribbons/shield/'.$each.' '.$i.$each2.'.png';
                             if( is_readable($image) && ! is_dir($image) ){
-                                $display = ' display:none;';
-//                                $display = '';
-                                if(
-                                    @$selected // Check for default or posted value.
-                                ){ $display = ''; }
+                                if( // Check for default or posted value.
+                                    @$effect === 'Ribbon'
+                                ){
+                                    $selected = ' class="selected"';
+                                }else{ $selected = ''; }
                                 $image = '
-            <img alt="'.$image.'" src="'.$image.'" style="position:absolute;top:0;left:0;'.$display.'"/>';
+            <img alt="'.$each.' '.$i.$each2.'" src="'.$image.'"'.$selected.'/>';
                             }else{ $image = ''; }
-                            $form .= $image;
-                        }unset($image,$display);
+                            $return .= $image;
+                        }
                     }
                     $i++;
                 }
             }
             
+            foreach( static::$effects as $val ){
+                foreach( $val as $effect ){
+                    $image = static::$images_root.'/ribbons';
+                    if( $planet === 'Grand Tour' ){ $image .= '/shield'; }
+                    $image .= '/'.$effect.'.png';
+                    if( is_readable($image) && ! is_dir($image) ){
+                        if( // Check for default or posted value.
+                            @$effect === 'Ribbon'
+                        ){
+                            $selected = ' class="selected"';
+                        }else{ $selected = ''; }
+                        $image = '
+            <img alt="'.$effect.'" src="'.$image.'"'.$selected.'/>';
+                    }else{ $image = ''; }
+                    $return .= $image;
+                }
+            }
+            
             // END Ribbon guts.
             
-            $form .= '
+            $return .= '
             <span>'.$planet.'</span>
         </div>';
         }
-        $form .= '
-</div>';
-        return $form;
+        $return .= '
+</div>
+';
+        return $return;
     }
     
 }
