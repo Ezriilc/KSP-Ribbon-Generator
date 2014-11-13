@@ -4,9 +4,9 @@ $(document).ready(function(){
     
     $('.ribbons .ribbon').click(function(event){
         $('.ribbons input[type="submit"]').fadeIn(0);
-        var planetText = this.className.replace(/^ribbon-([^\s]*).*$/,'$1');
-        $('.ribbons .planet').not('.planet-'+planetText).fadeTo('slow',0);
-        $('.ribbons .planet-'+planetText).fadeTo('slow',1);
+        var planetText = this.className.replace(/.*ribbon ([^\s]*).*/i,'$1');
+        $('.ribbons .planet').not('.'+planetText).fadeOut(0);
+        $('.ribbons .planet.'+planetText).fadeTo('slow',1);
     });
     
     $('.ribbons :input').change(function(event){
@@ -43,18 +43,18 @@ $(document).ready(function(){
             }
             if( thisSib.groupText === 'effects' ){
                 if( thisSib.type !== 'checkbox' ){
-                    thisSib.effects = $('.ribbons .effect-'+thisSib.valText.replace(/\s+/ig,'_'));
+                    thisSib.effects = $('.ribbons .effect.'+thisSib.valText.replace(/\s+/g,'_'));
                 }else{
-                    thisSib.effects = $('.ribbons .effect-'+thisSib.propText);
+                    thisSib.effects = $('.ribbons .effect.'+thisSib.propText);
                 }
             }else{
-                thisSib.planet = $('.planet-'+thisSib.groupText);
-                thisSib.ribbon = $('.ribbon-'+thisSib.groupText);
-                thisSib.devices = thisSib.ribbon.find('[class^="device-"]');
+                thisSib.planet = $('.planet.'+thisSib.groupText);
+                thisSib.ribbon = $('.ribbon.'+thisSib.groupText);
+                thisSib.devices = thisSib.ribbon.find('.device"]');
                 if( typeof thisSib.valText !== 'boolean' ){
-                    thisSib.device = thisSib.devices.filter('.device-'+thisSib.valText.replace(/\s+/ig,'_'));
+                    thisSib.device = thisSib.devices.filter('.device.'+thisSib.valText.replace(/\s+/g,'_'));
                     if( thisSib.device.length ){
-                        thisSib.deviceText = thisSib.device.prop('class').replace(/^device-([^\s]*).*$/,'$1');
+                        thisSib.deviceText = thisSib.device.prop('class').replace(/.*device ([^\s]*).*/i,'$1');
                     }else{ thisSib.deviceText = ''; }
                 }
             }
@@ -105,10 +105,10 @@ $(document).ready(function(){
             ){
                 target.OL = target.propText.replace(/s$/,'');
                 if( target.valText+0 > 0 ){
-                    makeVis( target.devices.filter('.device-'+target.OL+'_1') );
+                    makeVis( target.devices.filter('.device.'+target.OL+'_1') );
                     target.OLrepeats = target.valText - 1;
                 }else{
-                    makeInvis( target.devices.filter('.device-'+target.OL+'_1') );
+                    makeInvis( target.devices.filter('.device.'+target.OL+'_1') );
                     target.OLrepeats = 0;
                 }
                 target.silvers = 0;
@@ -119,8 +119,8 @@ $(document).ready(function(){
                 target.golds = target.valText - (target.silvers * 5);
                 var thisS, thisG;
                 i=2;while( i <= 8 ){
-                    thisS = target.devices.filter('.device-'+target.OL+'_'+i+'_Silver');
-                    thisG = target.devices.filter('.device-'+target.OL+'_'+i);
+                    thisS = target.devices.filter('.device.'+target.OL+'_'+i+'_Silver');
+                    thisG = target.devices.filter('.device.'+target.OL+'_'+i);
                     if( i <= target.silvers+1 ){
                         makeVis(thisS);
                         makeInvis(thisG);

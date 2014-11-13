@@ -4,6 +4,7 @@ new RIBBONS;
 //var_dump(@$_SESSION['ribbons']['post']);
 echo RIBBONS::$output;
 //return RIBBONS::$output;
+var_dump(@$_SESSION);
 
 class RIBBONS{
     static
@@ -24,27 +25,27 @@ class RIBBONS{
     
     function __construct(){
         static::$planets = array( // In order of display, by column > row.
-            'Kerbol'   =>'0010001'
-            ,'Moho'	    =>'1000001'
-            ,'Asteroid' =>'1010010'
-            ,'Eve'      =>'1110101'
-            ,'Gilly'    =>'1010010'
-            ,'Eeloo'    =>'1010000'
-            ,'Kerbin'   =>'1111101'
-            ,'Mun'      =>'1001000'
-            ,'Minmus'   =>'1011010'
-            ,'Duna'     =>'1111001'
-            ,'Ike'      =>'1011010'
-            ,'Dres'     =>'1010000'
-            ,'Jool'     =>'0110001'
-            ,'Laythe'   =>'1100000'
-            ,'Vall'     =>'1000000'
-            ,'Tylo'     =>'1001100'
-            ,'Bop'      =>'1001010'
-            ,'Pol'      =>'1000010'
-            ,'Grand Tour' =>''
+            'Kerbol'        =>'0010001'
+            ,'Moho'	        =>'1000001'
+            ,'Asteroid'     =>'1010010'
+            ,'Eve'          =>'1110101'
+            ,'Gilly'        =>'1010010'
+            ,'Eeloo'        =>'1010000'
+            ,'Kerbin'       =>'1111101'
+            ,'Mun'          =>'1001000'
+            ,'Minmus'       =>'1011010'
+            ,'Duna'         =>'1111001'
+            ,'Ike'          =>'1011010'
+            ,'Dres'         =>'1010000'
+            ,'Jool'         =>'0110001'
+            ,'Laythe'       =>'1100000'
+            ,'Vall'         =>'1000000'
+            ,'Tylo'         =>'1001100'
+            ,'Bop'          =>'1001010'
+            ,'Pol'          =>'1000010'
+            ,'Grand Tour'   =>'1100000'
         );
-        $planet_attributes = array('surface', 'atmosphere', 'geosynchronous', 'anomaly', 'challenge', 'eeva', 'asteroid'); // Number strings above.
+        $planet_attributes = array('Surface', 'Atmosphere', 'Geosynchronous', 'Anomaly', 'Challenge Wreath', 'Extreme EVA', 'Asteroid'); // Number strings above.
         foreach( static::$planets as $planet => $attribs ){
             static::$planets[$planet] = array();
             foreach( $planet_attributes as $key => $val ){
@@ -68,26 +69,26 @@ class RIBBONS{
         
         // Devices in order of inputs display: Category => Type => Device => Priority, Description.
         static::$devices = array(
-            'mans' => array( // Category
-                'common' => array( // Type
+            'Maneuvers' => array( // Category
+                'Common' => array( // Type
                     'Orbit'             => array(8, 'Periapsis above the atmosphere and apoapsis within the sphere of influence.')
                     ,'Equatorial'       => array(5, 'Inclination less than 5 degrees and, apoapsis and periapsis within 5% of each other.')
                     ,'Polar'            => array(4, 'Polar orbit capable of surveying the entire surface.')
                     ,'Rendezvous'       => array(6, 'Docked two craft in orbit, or maneuvered two orbiting craft within 100m for a sustained time.')
                 )
-                ,'surface' => array(
+                ,'Surface' => array(
                     'Land Nav'          => array(9, 'Ground travel at least 30km or 1/5ths a world\'s circumference (whichever is shorter).')
                 )
-                ,'atmosphere' => array(
+                ,'Atmosphere' => array(
                     'Atmosphere'        => array(3, 'Controlled maneuvers using wings or similar. Granted only if craft can land and then take off, or perform maneuvers and then attain orbit.')
                 )
-                ,'special' => array(
+                ,'Special' => array(
                     'Geosynchronous'    => array(7, 'Achieve geosynchronous orbit around the world; or drag the body into geosynchronous orbit around another; or construct a structured, line-of-sight satellite network covering a specific location.')
                     ,'Kerbol Escape'    => array(10, 'Achieved solar escape velocity - for Kerbol only.')
                 )
             )
-            ,'crafts' => array(
-                'common' => array(
+            ,'Crafts' => array(
+                'Common' => array(
                     'Probe'             => array(0, 'Autonomous craft which does not land.')
                     ,'Capsule'          => array(0, 'Manned craft which does not land, or only performs a single, uncontrolled landing.')
                     ,'Resource'         => array(0, 'Installation on the surface or in orbit, capable of mining and/or processing resources.')
@@ -97,7 +98,7 @@ class RIBBONS{
                     ,'Armada'           => array(0, 'Three or more vessels, staged in orbit for a trip to another world, and launched within one week during one encounter window.')
                     ,'Armada 2'         => array(0, 'Three or more vessels, staged in orbit for a trip to another world, and launched within one week during one encounter window.')
                 )
-                ,'surface' => array(
+                ,'Surface' => array(
                     'Impactor'          => array(0, 'Craft was destroyed by atmospheric or surface friction.')
                     ,'Probe Lander'     => array(0, 'Autonomous craft which landed on a world\'s surface.')
                     ,'Probe Rover'      => array(0, 'Autonomous craft which landed and performed controlled surface travel.')
@@ -107,20 +108,20 @@ class RIBBONS{
                     ,'Base'             => array(0, 'A permanent ground construction capable of long-term habitation by multiple Kerbals')
                     ,'Base 2'           => array(0, 'A permanent ground construction capable of long-term habitation by multiple Kerbals')
                 )
-                ,'atmosphere' => array(
+                ,'Atmosphere' => array(
                     'Meteor'            => array(0, 'Craft was destroyed due to atmospheric entry.')
                 )
-                ,'special' => array(
+                ,'Special' => array(
                     'Extreme EVA'       => array(0, 'Landed and returned to orbit without the aid of a spacecraft.')
                 )
             )
-            ,'misc' => array(
-                'common' => array(
+            ,'Misc' => array(
+                'Common' => array(
                     'Kerbal Lost'       => array(0, 'A Kerbal was killed or lost beyond the possibility of rescue.')
                     ,'Kerbal Saved'     => array(1, 'Returned a previously stranded Kerbal safely to Kerbin.')
                     ,'Return Chevron'   => array(12, 'Returned any craft safely to Kerbin from the world.')
                 )
-                ,'special' => array(
+                ,'Special' => array(
                     'Anomaly'           => array(2, 'Discovered and closely inspected a genuine Anomaly.')
                     ,'Challenge Wreath' => array(11, 'A special challenge for each world.')
                 )
@@ -128,7 +129,7 @@ class RIBBONS{
         );
         static::$devices_ordered = array();
         foreach( static::$devices as $cat => $types ){
-            if( $cat === 'crafts' ){ continue; }
+            if( $cat === 'Crafts' ){ continue; }
             foreach( $types as $type => $devices ){
                 foreach( $devices as $device => $details ){
                     static::$devices_ordered[$details[0]] = array($device, $type, $cat, $details[1]);
@@ -136,19 +137,152 @@ class RIBBONS{
             }
         }
         ksort(static::$devices_ordered);
-        foreach( static::$devices['crafts'] as $type => $crafts ){
+        foreach( static::$devices['Crafts'] as $type => $crafts ){
             foreach( $crafts as $craft => $details ){
                 static::$devices_ordered[] = array($craft, $type, $cat, $details[1]);
             }
         }
         
-        static::$output .= $this->get_ribbons();
+        $this->get_input();
         
+        static::$output .= $this->get_ribbons();
+        static::$output .= '
+<div style="clear:both;"></div>';
+        static::$output .= $this->get_form();
+        
+    }
+    
+    private function de_space($in_out){
+        return preg_replace('/\s+/','_',$in_out);
+    }
+    
+    private function get_input(){
+        if( empty($_POST['ribbons_submit']) ){
+            if( empty($_SESSION['ribbons']) ){
+                // Set everything to defaults.
+                $_SESSION['ribbons'] = array(
+                    'effects/type' => 'Ribbon'
+                );
+            }
+        }else{
+            $_SESSION['ribbons'] = array();
+            foreach( $_POST as $key => $val ){
+                // Basic post scrubbing.
+                if(
+                    strlen($val) > 40
+                    || strlen($key) > 40
+                    || ! $key
+                    || ! $val
+                    || $val === 'None'
+                    || preg_match('/^ribbons_/i',$key)
+                ){ continue; }
+                $_SESSION['ribbons'][$key] = $val;
+            }
+        }
+    }
+    
+    private function get_form(){
+        $return = '';
+        $return .= '
+<form class="ribbons" method="post"><fieldset>
+    <input type="submit" name="ribbons_submit"/>
+    <hr/>';
+        
+        // Submit:
+        
+        // Effects:
+        
+        // Planets:
+        foreach( static::$planets as $planet => $attribs ){
+            $first_craft = true;
+            $return .= '
+    <div class="planet '.$this->de_space($planet).'">
+        <div>'.$planet.'</div>';
+            
+            // BEGIN Planet guts.
+            if( ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] ) ){
+                $checked = ' checked="checked"';
+            }else{ $checked = ''; }
+            $return .= '
+        <div class="category achieved">
+            <div class="input_box">
+                <label for="'.$planet.'/Achieved">Achieved</label>
+                <input type="checkbox" id="'.$planet.'/Achieved" name="'.$planet.'/Achieved"'.$checked.'/>
+            </div>
+        </div>';
+            
+            
+            foreach( static::$devices as $cat => $types ){
+                $return .= '
+        <div class="category '.$this->de_space($cat).'">';
+                foreach( $types as $type => $devices ){
+                    foreach( $devices as $device => $details ){
+                        $desc = $details[1] ? : '';
+                        if(
+                            empty($attribs[$type])
+                            && empty($attribs[$device])
+                            && $type !== 'Common'
+                        ){ continue; }
+                        if(
+                            $planet === 'Grand Tour'
+                            && ! is_readable( static::$images_root.'/ribbons/shield/'.$device.'.png' )
+                        ){ continue; }
+                        $input_type = 'checkbox';
+                        $name = $this->de_space($planet.'/'.$device);
+                        $id = uniqid($name.'_');
+                        $value = '';
+                        $checked = '';
+                        if( $cat === 'Crafts' ){
+                            $name = $this->de_space($planet.'/craft');
+                            $value = ' value="'.$device.'"';
+                            $input_type = 'radio';
+                            if( @$_SESSION['ribbons'][$name] === $device ){
+                                $checked = ' checked="checked"';
+                            }
+                            if( $first_craft ){
+                                if( empty( $_SESSION['ribbons'][$name] ) ){
+                                    $checked2 = ' checked="checked"';
+                                }else{ $checked2 = ''; }
+                                $first_craft = false;
+                                $return .= '
+            <div class="input_box">
+                <label for="'.$id.'/None">No Craft</label>
+                <input type="'.$input_type.'" id="'.$id.'/None" name="'.$name.'" value="None"'.$checked2.'/>
+            </div>';
+                            }
+                        }elseif( ! empty( $_SESSION['ribbons'][$name] ) ){
+                            $checked = ' checked="checked"';
+                        }
+                        $image = static::$images_root.'/ribbons/icons/'.$device.'.png';
+                        if( is_readable($image) && ! is_dir($image) ){
+                            $image = ' style="background-image:url(\''.$image.'\');"';
+                        }else{ $image = ''; }
+                        $return .= '
+            <div class="input_box">
+                <label for="'.$id.'" title="'.$desc.'"'.$image.'>'.$device.'</label>
+                <input type="'.$input_type.'" id="'.$id.'" name="'.$name.'"'.$value.$checked.'/>
+            </div>';
+                    }
+                }
+                $return .= '
+            <div style="clear:both;"></div>
+        </div>';
+            }
+            
+            // END Planet guts.
+            
+            $return .= '
+    </div>';
+        }
+        $return .= '
+</fieldset></form>';
+        return $return;
     }
     
     private function get_ribbons(){
         $return = '';
-        $return .= '<div class="ribbons">';
+        $return .= '
+<div class="ribbons">';
         $i=0;
         foreach( static::$planets as $planet => $attribs ){
             $i++;
@@ -161,58 +295,61 @@ class RIBBONS{
     <div class="column">';
             }
             $image = static::$images_root.'/ribbons/'.$planet.'.png';
-            $height = '';
             if( $planet === 'Grand Tour' ){
                 $image = static::$images_root.'/ribbons/shield/Base Colours.png';
                 $height = 'height:96px;line-height:96px;';
-            }
-            
+            }else{ $height = ''; }
             if( is_readable($image) && ! is_dir($image) ){
                 $image = 'background-image:url(\''.$image.'\');';
             }else{ $image = ''; }
+            if( ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] ) ){
+                $selected = ' selected';
+            }else{ $selected = ''; }
             $return .= '
-        <div class="ribbon" style="'.$height.$image.'">';
+        <div class="ribbon '.$this->de_space($planet).$selected.'" style="'.$height.$image.'">';
         
             // BEGIN Ribbon guts.
             
             foreach( static::$devices_ordered as $device ){
                 // Devices in order of priority.
-                $name = $device[0];
                 $type = $device[1];
                 $cat = $device[2];
                 $desc = $device[3];
+                $device = $device[0];
                 if(
-                    $type !== 'common'
-                    && empty( static::$planets[$planet][$type] )
+                    $type !== 'Common'
+                    && empty($attribs[$type])
+                    && empty($attribs[$device])
                     && $planet !== 'Grand Tour'
                 ){ continue; }
                 $image = static::$images_root.'/ribbons';
                 if( $planet === 'Grand Tour' ){ $image .= '/shield'; }
-                $image .= '/'.$name.'.png';
+                $image .= '/'.$device.'.png';
                 if( is_readable($image) && ! is_dir($image) ){
                     if( // Check for default or posted value.
-                        @$effect === 'Ribbon'
+                        ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/'.$device)] )
+                        || $device === @$_SESSION['ribbons'][$this->de_space($planet.'/craft')]
                     ){
-                        $selected = ' class="selected"';
+                        $selected = ' selected';
                     }else{ $selected = ''; }
                     $image = '
-            <img alt="'.$name.'" src="'.$image.'"'.$selected.'/>';
+            <img class="device '.$this->de_space($device).$selected.'" alt="'.$device.'" src="'.$image.'"/>';
                 }else{ $image = ''; }
                 $return .= $image;
             }
             
             if( $planet === 'Grand Tour' ){
-                foreach( static::$planets as $planet2 => $attribs ){
+                foreach( static::$planets as $planet2 => $attribs2 ){
                     if( $planet2 === 'Grand Tour' ){ continue; }
                     $image = static::$images_root.'/ribbons/shield/'.$planet2.' Visit.png';
                     if( is_readable($image) && ! is_dir($image) ){
                         if( // Check for default or posted value.
-                            @$effect === 'Ribbon'
+                            ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/'.$planet2)] )
                         ){
-                            $selected = ' class="selected"';
+                            $selected = ' selected';
                         }else{ $selected = ''; }
                         $image = '
-            <img alt="'.$planet2.'" src="'.$image.'"'.$selected.'/>';
+            <img class="device '.$this->de_space($planet2).$selected.'" alt="'.$planet2.'" src="'.$image.'"/>';
                     }else{ $image = ''; }
                     $return .= $image;
                 }
@@ -220,15 +357,19 @@ class RIBBONS{
                 $i=1;while($i <= 8){
                     foreach( array('Orbit','Landing') as $each ){
                         foreach( array('',' Silver') as $each2 ){
-                            $image = static::$images_root.'/ribbons/shield/'.$each.' '.$i.$each2.'.png';
+                            $name = $each.' '.$i.$each2;
+                            $image = static::$images_root.'/ribbons/shield/'.$name.'.png';
                             if( is_readable($image) && ! is_dir($image) ){
-                                if( // Check for default or posted value.
+                                if(
+                                    
+                                    // Check for default or posted value.
                                     @$effect === 'Ribbon'
+                                    
                                 ){
-                                    $selected = ' class="selected"';
+                                    $selected = ' selected';
                                 }else{ $selected = ''; }
                                 $image = '
-            <img alt="'.$each.' '.$i.$each2.'" src="'.$image.'"'.$selected.'/>';
+            <img class="device '.$this->de_space($name).$selected.'" alt="'.$name.'" src="'.$image.'"/>';
                             }else{ $image = ''; }
                             $return .= $image;
                         }
@@ -244,12 +385,11 @@ class RIBBONS{
                     $image .= '/'.$effect.'.png';
                     if( is_readable($image) && ! is_dir($image) ){
                         if( // Check for default or posted value.
-                            @$effect === 'Ribbon'
-                        ){
-                            $selected = ' class="selected"';
-                        }else{ $selected = ''; }
+                            $effect === @$_SESSION['ribbons']['effects/type']
+                            || ! empty( $_SESSION['ribbons']['effects/'.$effect] )
+                        ){ $selected = ' selected'; }else{ $selected = ''; }
                         $image = '
-            <img alt="'.$effect.'" src="'.$image.'"'.$selected.'/>';
+            <img class="effect '.$this->de_space($effect).$selected.'" alt="'.$effect.'" src="'.$image.'"/>';
                     }else{ $image = ''; }
                     $return .= $image;
                 }
@@ -257,8 +397,12 @@ class RIBBONS{
             
             // END Ribbon guts.
             
+            $name_vis = '';
+            if( ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] ) ){
+                $name_vis = ' style="visibility:hidden;"';
+            }
             $return .= '
-            <span>'.$planet.'</span>
+            <span'.$name_vis.'>'.$planet.'</span>
         </div>';
         }
         $return .= '
