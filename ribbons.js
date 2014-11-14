@@ -1,6 +1,5 @@
 $(document).ready(function(){
     $('.ribbons .planet').fadeOut(0);
-    $('.ribbons input[type="submit"]').fadeOut(0);
     
     $('.ribbons .ribbon').click(function(event){
         $('.ribbons input[type="submit"]').fadeIn(0);
@@ -50,15 +49,20 @@ $(document).ready(function(){
             }else{
                 thisSib.planet = $('.planet.'+thisSib.groupText);
                 thisSib.ribbon = $('.ribbon.'+thisSib.groupText);
-                thisSib.devices = thisSib.ribbon.find('.device"]');
+                thisSib.devices = thisSib.ribbon.find('.device');
                 if( typeof thisSib.valText !== 'boolean' ){
                     thisSib.device = thisSib.devices.filter('.device.'+thisSib.valText.replace(/\s+/g,'_'));
-                    if( thisSib.device.length ){
-                        thisSib.deviceText = thisSib.device.prop('class').replace(/.*device ([^\s]*).*/i,'$1');
-                    }else{ thisSib.deviceText = ''; }
+                }else{
+                    thisSib.device = thisSib.devices.filter('.device.'+thisSib.propText.replace(/\s+/g,'_'));
                 }
+                if( thisSib.device.length ){
+                    thisSib.deviceText = thisSib.device.prop('class').replace(/.*device ([^\s]*).*/i,'$1');
+                }else{ thisSib.deviceText = ''; }
             }
         });
+        
+        // Data collected, now do stuff.
+        
         if( target.groupText === 'effects' ){
             target.siblings.each(function(index){
                 var thisSib = target.siblings[index];
@@ -69,9 +73,28 @@ $(document).ready(function(){
         if( target.bool ){
             makeVis(target.effects);
             $(':input[name="'+target.groupText+'/Achieved"]').prop('checked',true);
+            if(
+                target.propText === 'Equatorial'
+                || target.propText === 'Polar'
+                || target.propText === 'Geosynchronous'
+            ){
+                $(':input[name="'+target.groupText+'/Orbit"]').prop('checked',true);
+                makeVis(target.ribbon.find('.device.Orbit'));
+                if( target.propText === 'Geosynchronous' ){
+                    $(':input[name="'+target.groupText+'/Equatorial"]').prop('checked',true);
+                    makeVis(target.ribbon.find('.device.Equatorial'));
+                }
+            }
         }else{
             makeInvis(target.effects);
-            if( target.propText === 'Achieved' ){
+            if( target.propText === 'Orbit' ){
+                $(':input[name="'+target.groupText+'/Equatorial"]').prop('checked',false);
+                makeInvis(target.ribbon.find('.device.Equatorial'));
+                $(':input[name="'+target.groupText+'/Polar"]').prop('checked',false);
+                makeInvis(target.ribbon.find('.device.Polar'));
+                $(':input[name="'+target.groupText+'/Geosynchronous"]').prop('checked',false);
+                makeInvis(target.ribbon.find('.device.Geosynchronous'));
+            }else if( target.propText === 'Achieved' ){
                 target.planet.find(':input').prop('checked',false);
                 target.planet.find(':input[value="None"]').prop('checked',true);
                 target.planet.find('select').val('0');
@@ -82,13 +105,16 @@ $(document).ready(function(){
             makeInvis(target.devices);
             if( target.ribbon ){
                 target.ribbon.fadeTo('slow',0.5);
+                target.ribbon.find('.title').fadeTo('slow',1);
                 target.ribbon.removeClass('selected');
             }
             return;
         }
         
         target.ribbon.fadeTo('slow',1);
+        target.ribbon.find('.title').fadeTo('slow',0);
         target.ribbon.addClass('selected');
+        
         if( target.siblings.length > 1 ){ // Radio.
             target.siblings.each(function(index){
                 var thisSib = target.siblings[index];
