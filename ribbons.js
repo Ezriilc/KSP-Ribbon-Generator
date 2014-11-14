@@ -138,13 +138,15 @@ $(document).ready(function(){
                     target.OLrepeats = 0;
                 }
                 target.silvers = 0;
-                while( target.OLrepeats > 7 ){
+                target.divisor = 7; 
+                while( target.OLrepeats > target.divisor ){
                     target.silvers++;
                     target.OLrepeats -= 5;
+                    target.divisor -= 1;
                 }
                 target.golds = target.valText - (target.silvers * 5);
                 var thisS, thisG;
-                i=2;while( i <= 8 ){
+                i=2;while( i <= 39 ){
                     thisS = target.devices.filter('.device.'+target.OL+'_'+i+'_Silver');
                     thisG = target.devices.filter('.device.'+target.OL+'_'+i);
                     if( i <= target.silvers+1 ){

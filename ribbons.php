@@ -156,10 +156,15 @@ class RIBBONS{
     private function get_input(){
         if( empty($_POST['ribbons_submit']) ){
             if( empty($_SESSION['ribbons']) ){
-                // Set everything to defaults.
-                $_SESSION['ribbons'] = array(
-                    'effects/Texture' => 'Ribbon'
-                );
+                if( empty($_SESSION['logged_in']) ){
+                    // Set everything to defaults.
+                    $_SESSION['ribbons'] = array(
+                        'effects/Texture' => 'Ribbon'
+                    );
+                }else{
+                    // Load ribbons from database.
+                    
+                }
             }
         }else{
             $_SESSION['ribbons'] = array();
@@ -270,7 +275,36 @@ class RIBBONS{
             <div class="input_box Achieved">
                 <label for="'.$name.'"'.$planet_image.'>Achieved</label>
                 <input type="checkbox" id="'.$name.'" name="'.$name.'"'.$checked.'/>
-            </div>
+            </div>';
+            if( $planet === 'Grand Tour' ){
+                // Orbits & Landings:
+                foreach( array('Orbits','Landings') as $each ){
+                    $name = 'Grand_Tour/'.$each;
+                    $return .= '
+            <div class="input_box '.$name.'">
+                <label for="'.$name.'">'.$each.'</label>
+                <select id="'.$name.'" name="'.$name.'">';
+                    $i=0;while($i<=16){
+                        $selected = '';
+                        if(
+                            $i == @$_SESSION['ribbons'][$name]
+                            ||(
+                                $i == 0
+                                && empty( $_SESSION['ribbons'][$name] )
+                            )
+                        ){
+                            $selected = ' selected="selected"';
+                        }
+                        $return .= '
+                    <option value="'.$i.'"'.$selected.'>'.$i.'</option>';
+                        $i++;
+                    }
+                    $return .= '
+                </select>
+            </div>';
+                }
+            }
+            $return .= '
             <div style="clear:both;"></div>
         </div>';
             
@@ -430,17 +464,48 @@ class RIBBONS{
                     $return .= $image;
                 }
                 
+                $o_l = array('Orbit','Landing');
+                foreach( $o_l as $each ){
+                    $$each = array('count'=>'','silvers'=>array(),'golds'=>array());
+                    $this_array = &$$each;
+                    $this_array['count'] = 0 + @$_SESSION['ribbons']['Grand_Tour/'.$each.'s'];
+                    if( $this_array['count'] > 0 ){
+                        
+                        array_push($this_array['golds'], 1);
+                        $count_i = $this_array['count']-1;
+                        $silvers = 0;
+                        $divisor = 7;
+                        while( $count_i > $divisor ){
+                            $silvers++;
+                            $count_i -= 5;
+                            $divisor -= 1;
+                        }
+                        $golds = $this_array['count'] - ($silvers * 5);
+                        
+                        $i=2;while( $i <= 8 ){
+                            if( $i <= $silvers + 1 ){
+                                array_push($this_array['silvers'], $i);
+                            }elseif( $i <= $silvers + $golds ){
+                                array_push($this_array['golds'], $i);
+                            }
+                            $i++;
+                        }
+                        
+                    }
+                }
+                
                 $i=1;while($i <= 8){
                     foreach( array('Orbit','Landing') as $each ){
+                        $this_array = &$$each;
+                        $each_count = 0 + @$_SESSION['ribbons']['Grand_Tour/'.$each];
                         foreach( array('',' Silver') as $each2 ){
                             $OLname = $each.' '.$i.$each2;
+                            if( $each2 === '' ){ $each_rl = 'golds'; }
+                            else{ $each_rl = 'silvers'; }
                             $image = static::$images_root.'/ribbons/shield/'.$OLname.'.png';
                             if( is_readable($image) && ! is_dir($image) ){
-                                if(
-                                    
-                                    // Check for default or posted value.
-                                    @$effect === 'Ribbon'
-                                    
+                                if( // Check for default or posted value.
+                                    in_array( $i, $this_array[$each_rl] )
                                 ){
                                     $selected = ' selected';
                                 }else{ $selected = ''; }

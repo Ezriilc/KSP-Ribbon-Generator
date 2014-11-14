@@ -70,7 +70,8 @@
     height:99%;
     cursor:pointer;
 }
-.ribbons .input_box input{
+.ribbons .input_box input,
+.ribbons .input_box select{
     position:absolute;
     right:0;bottom:0;
     cursor:pointer;
