@@ -155,7 +155,7 @@ class RIBBONS{
     
     private function get_input(){
         if( empty($_POST['ribbons_submit']) ){
-            if( empty($_SESSION['ribbons']) ){
+            if( ! isset($_SESSION['ribbons']) ){
                 if( empty($_SESSION['logged_in']) ){
                     // Set everything to defaults.
                     $_SESSION['ribbons'] = array(
@@ -239,11 +239,14 @@ class RIBBONS{
                 
                 $image = static::$images_root.'/ribbons/'.$effect.'.png';
                 if( is_readable($image) && ! is_dir($image) ){
-                    $image = ' style="background-image:url(\''.$image.'\');"';
+                    $image = '
+                    <img alt="" src="'.$image.'"/>';
                 }else{ $image = ''; }
                 $return .= '
             <div class="input_box">
-                <label for="'.$id.'"'.$image.'>'.$effect.'</label>
+                <label for="'.$id.'">
+                    '.$effect.$image.'
+                </label>
                 <input type="'.$input_type.'" id="'.$id.'" name="'.$name.'"'.$value.$checked.'/>
             </div>';
             }
@@ -265,15 +268,18 @@ class RIBBONS{
             if( ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] ) ){
                 $checked = ' checked="checked"';
             }else{ $checked = ''; }
-            $planet_image = static::$images_root.'/ribbons/icons/'.$planet.'.png';
-            if( is_readable($planet_image) && ! is_dir($planet_image) ){
-                $planet_image = ' style="background-image:url(\''.$planet_image.'\');"';
-            }
+            $image = static::$images_root.'/ribbons/icons/'.$planet.'.png';
+            if( is_readable($image) && ! is_dir($image) ){
+                $image = '
+                <img alt="'.$planet.'" src="'.$image.'"/>';
+            }else{ $image = ''; }
             $name = $this->de_space($planet.'/Achieved');
             $return .= '
         <div class="category achieved">
             <div class="input_box Achieved">
-                <label for="'.$name.'"'.$planet_image.'>Achieved</label>
+                <label for="'.$name.'">
+                    Achieved'.$image.'
+                </label>
                 <input type="checkbox" id="'.$name.'" name="'.$name.'"'.$checked.'/>
             </div>';
             if( $planet === 'Grand Tour' ){
@@ -282,7 +288,9 @@ class RIBBONS{
                     $name = 'Grand_Tour/'.$each;
                     $return .= '
             <div class="input_box '.$name.'">
-                <label for="'.$name.'">'.$each.'</label>
+                <label for="'.$name.'">
+                    '.$each.'
+                </label>
                 <select id="'.$name.'" name="'.$name.'">';
                     $i=0;while($i<=16){
                         $selected = '';
@@ -340,10 +348,10 @@ class RIBBONS{
                                 $checked = ' checked="checked"';
                             }
                             if( $first_craft ){
+                                $first_craft = false;
                                 if( empty( $_SESSION['ribbons'][$name] ) ){
                                     $checked2 = ' checked="checked"';
                                 }else{ $checked2 = ''; }
-                                $first_craft = false;
                                 $return .= '
             <div class="input_box">
                 <label for="'.$id.'/None">No Craft</label>
@@ -356,14 +364,47 @@ class RIBBONS{
                         
                         $image = static::$images_root.'/ribbons/icons/'.$device.'.png';
                         if( is_readable($image) && ! is_dir($image) ){
-                            $image = ' style="background-image:url(\''.$image.'\');"';
+                            $image = '
+                    <img alt="'.$device.'" src="'.$image.'"/>';
                         }else{ $image = ''; }
                         $return .= '
             <div class="input_box">
-                <label for="'.$id.'" title="'.$desc.'"'.$image.'>'.$device.'</label>
+                <label for="'.$id.'" title="'.$desc.'">
+                    '.$device.$image.'
+                </label>
                 <input type="'.$input_type.'" id="'.$id.'" name="'.$name.'"'.$value.$checked.'/>
             </div>';
                     }
+                }
+                $return .= '
+            <div style="clear:both;"></div>
+        </div>';
+            }
+            
+            // Grand Tour specifics:
+            if( $planet === 'Grand Tour' ){
+                $return .= '
+        <div class="category planets">';
+                foreach( static::$planets as $planet2 => $attribs2 ){
+                    if( $planet2 === 'Grand Tour' ){ continue; }
+                    $image = static::$images_root.'/ribbons/icons/'.$planet2.'.png';
+                    if( is_readable($image) && ! is_dir($image) ){
+                        $image = '
+                    <img alt="'.$planet2.'" src="'.$image.'"/>';
+                    }else{ $image = ''; }
+                    $name = $this->de_space('Grand Tour/'.$planet2);
+                    if( // Check for default or posted value.
+                        ! empty( $_SESSION['ribbons'][$name] )
+                    ){
+                        $checked = ' checked="checked"';
+                    }else{ $checked = ''; }
+                    $return .= '
+            <div class="input_box">
+                <label for="'.$name.'">
+                    '.$planet2.$image.'
+                </label>
+                <input type="checkbox" id="'.$name.'" name="'.$name.'"'.$checked.'/>
+            </div>';
                 }
                 $return .= '
             <div style="clear:both;"></div>
@@ -403,22 +444,22 @@ class RIBBONS{
                 $height = 'height:96px;line-height:96px;';
             }else{ $height = ''; }
             if( is_readable($image) && ! is_dir($image) ){
-                $image = 'background-image:url(\''.$image.'\');';
+                $image = '
+            <img class="ribbon_image" alt="'.$planet.'" src="'.$image.'"/>';
             }else{ $image = ''; }
             if( ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] ) ){
                 $selected = ' selected';
             }else{ $selected = ''; }
-            $return .= '
-        <div  title="'.$planet.'" class="ribbon '.$this->de_space($planet).$selected.'" style="'.$height.$image.'">';
-        
-            // BEGIN Ribbon guts.
             
             $name_vis = '';
             if( ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] ) ){
                 $name_vis = ' style="opacity:0;"';
             }
             $return .= '
+        <div  title="'.$planet.'" class="ribbon '.$this->de_space($planet).$selected.'" style="'.$height.'">'.$image.'
             <span class="title"'.$name_vis.'>'.$planet.'</span>';
+            
+            // BEGIN Ribbon guts.
             
             foreach( static::$devices_ordered as $device ){
                 // Devices in order of priority.
@@ -523,14 +564,15 @@ class RIBBONS{
                 foreach( $val as $effect ){
                     $image = static::$images_root.'/ribbons';
                     if( $planet === 'Grand Tour' ){ $image .= '/shield'; }
+                    $name = $this->de_space($effect);
                     $image .= '/'.$effect.'.png';
                     if( is_readable($image) && ! is_dir($image) ){
                         if( // Check for default or posted value.
                             $effect === @$_SESSION['ribbons']['effects/Texture']
-                            || ! empty( $_SESSION['ribbons']['effects/'.$effect] )
+                            || ! empty( $_SESSION['ribbons']['effects/'.$name] )
                         ){ $selected = ' selected'; }else{ $selected = ''; }
                         $image = '
-            <img class="effect '.$this->de_space($effect).$selected.'" alt="'.$effect.'" src="'.$image.'"/>';
+            <img class="effect '.$name.$selected.'" alt="'.$effect.'" src="'.$image.'"/>';
                     }else{ $image = ''; }
                     $return .= $image;
                 }

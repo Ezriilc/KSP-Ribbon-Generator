@@ -1,5 +1,6 @@
 $(document).ready(function(){
     $('.ribbons .planet').fadeOut(0);
+    $('.ribbons input[type="submit"]').prop('disabled',true);
     
     $('.ribbons .ribbon').click(function(event){
         $('.ribbons input[type="submit"]').fadeIn(0);
@@ -14,6 +15,7 @@ $(document).ready(function(){
     
     myRibbons = new Object();
     myRibbons.update = function(target,event){
+        $('.ribbons input[type="submit"]').prop('disabled',false);
         var nameSplitPatt = /^([^\/]*)\/(.*)$/i;
         function makeVis(JQobj){
             if( ! JQobj ){ return; }
