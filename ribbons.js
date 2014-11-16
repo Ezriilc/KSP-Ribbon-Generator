@@ -74,7 +74,12 @@ $(document).ready(function(){
         }
         if( target.bool ){
             makeVis(target.effects);
-            $(':input[name="'+target.groupText+'/Achieved"]').prop('checked',true);
+            if(
+                target.groupText !== 'Asteroid'
+                ||  target.name === 'Asteroid/Asteroid'
+            ){
+                $(':input[name="'+target.groupText+'/Achieved"]').prop('checked',true);
+            }
             if(
                 target.propText === 'Equatorial'
                 || target.propText === 'Polar'
@@ -100,6 +105,11 @@ $(document).ready(function(){
                 target.planet.find(':input').prop('checked',false);
                 target.planet.find(':input[value="None"]').prop('checked',true);
                 target.planet.find('select').val('0');
+            }else if(
+                target.propText === 'Asteroid'
+                && target.valText === 'None'
+            ){
+                $(':input[name="'+target.groupText+'/Achieved"]').prop('checked',false);
             }
         }
         target.achieved = $(':input[name="'+target.groupText+'/Achieved"]').prop('checked');

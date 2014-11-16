@@ -1,6 +1,6 @@
 <?php
 
-echo '<h2>KSP Ribbon Generator v2.0 - ALPHA</h2>';
+echo '<h2>KSP Ribbon Generator - Testing</h2>';
 new RIBBONS;
 echo RIBBONS::$output;
 //return RIBBONS::$output;
@@ -8,7 +8,7 @@ var_dump(@$_SESSION);
 
 class RIBBONS{
     static
-    $db_file = './_gitignore/kerbaltek.sqlite3'
+    $db_file = './_sqlite/ribbons.sqlite3'
     ,$images_root = './KSP_images'
     ,$ribbons_table = 'ribbons'
     ,$bad_db = '<p class="error message">Database failure.  Please try again.</p>'
@@ -268,6 +268,12 @@ class RIBBONS{
             if( ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] ) ){
                 $checked = ' checked="checked"';
             }else{ $checked = ''; }
+            if(
+                $planet === 'Asteroid'
+                && ! $checked
+            ){
+                $disabled = ' disabled="disabled"';
+            }else{ $disabled = ''; }
             $image = static::$images_root.'/ribbons/icons/'.$planet.'.png';
             if( is_readable($image) && ! is_dir($image) ){
                 $image = '
@@ -275,14 +281,48 @@ class RIBBONS{
             }else{ $image = ''; }
             $name = $this->de_space($planet.'/Achieved');
             $return .= '
-        <div class="category achieved">
+        <div class="category Achieved">
             <div class="input_box Achieved">
                 <label for="'.$name.'">
                     Achieved'.$image.'
                 </label>
-                <input type="checkbox" id="'.$name.'" name="'.$name.'"'.$checked.'/>
+                <input type="checkbox" id="'.$name.'" name="'.$name.'"'.$checked.$disabled.'/>
             </div>';
-            if( $planet === 'Grand Tour' ){
+            if( $planet === 'Asteroid' ){
+                if( empty( $_SESSION['ribbons']['Asteroid/Asteroid'] ) ){
+                    $checked = ' checked="checked"';
+                }else{ $checked = ''; }
+                $return .= '
+            <div class="input_box Asteroid">
+                <label for="Asteroid/Asteroid/None">No Asteroid</label>
+                <input type="radio" id="Asteroid/Asteroid/None" name="Asteroid/Asteroid" value="None"'.$checked.'/>
+            </div>';
+                foreach( static::$planets as $planet2 => $attribs2 ){
+                    if(
+                        empty( $attribs2['Asteroid'] )
+                        || $planet2 === 'Asteroid'
+                    ){ continue; }
+                    $image = static::$images_root.'/ribbons/Asteroid - '.$planet2.'.png';
+                    if( is_readable($image) && ! is_dir($image) ){
+                        $image = '
+                    <img alt="Image:'.$planet2.'" src="'.$image.'"/>';
+                        if( // Check for default or posted value.
+                            $planet2 === @$_SESSION['ribbons'][$this->de_space($planet.'/Asteroid')]
+                        ){
+                            $checked = ' checked="checked"';
+                        }else{ $checked = ''; }
+                        $name = 'Asteroid/Asteroid';
+                        $id = $name.'/'.$this->de_space($planet2);
+                        $return .= '
+            <div class="input_box Asteroid">
+                <label for="'.$id.'">
+                    '.$planet2.$image.'
+                </label>
+                <input type="radio" id="'.$id.'" name="'.$name.'" value="'.$planet2.'"'.$checked.'/>
+            </div>';
+                    }else{ $image = ''; }
+                }
+            }elseif( $planet === 'Grand Tour' ){
                 // Orbits & Landings:
                 foreach( array('Orbits','Landings') as $each ){
                     $name = 'Grand_Tour/'.$each;
@@ -447,7 +487,9 @@ class RIBBONS{
                 $image = '
             <img class="ribbon_image" alt="'.$planet.'" src="'.$image.'"/>';
             }else{ $image = ''; }
-            if( ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] ) ){
+            if(
+                ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
+            ){
                 $selected = ' selected';
             }else{ $selected = ''; }
             
@@ -460,6 +502,27 @@ class RIBBONS{
             <span class="title"'.$name_vis.'>'.$planet.'</span>';
             
             // BEGIN Ribbon guts.
+            
+            if( $planet === 'Asteroid' ){
+                foreach( static::$planets as $planet2 => $attribs2 ){
+                    if(
+                        empty( $attribs2['Asteroid'] )
+                        || $planet2 === 'Asteroid'
+                    ){ continue; }
+                    $image = static::$images_root.'/ribbons/Asteroid - '.$planet2.'.png';
+                    if( is_readable($image) && ! is_dir($image) ){
+                        if( // Check for default or posted value.
+                            $planet2 === @$_SESSION['ribbons'][$this->de_space($planet.'/Asteroid')]
+                            && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
+                        ){
+                            $selected = ' selected';
+                        }else{ $selected = ''; }
+                        $image = '
+            <img class="device '.$this->de_space($planet2).$selected.'" alt="Image:'.$device.'" src="'.$image.'"/>';
+                    }else{ $image = ''; }
+                    $return .= $image;
+                }
+            }
             
             foreach( static::$devices_ordered as $device ){
                 // Devices in order of priority.
@@ -478,13 +541,16 @@ class RIBBONS{
                 $image .= '/'.$device.'.png';
                 if( is_readable($image) && ! is_dir($image) ){
                     if( // Check for default or posted value.
-                        ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/'.$device)] )
-                        || $device === @$_SESSION['ribbons'][$this->de_space($planet.'/craft')]
+                        (
+                            ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/'.$device)] )
+                            || $device === @$_SESSION['ribbons'][$this->de_space($planet.'/craft')]
+                        )
+                        && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
                     ){
                         $selected = ' selected';
                     }else{ $selected = ''; }
                     $image = '
-            <img class="device '.$this->de_space($device).$selected.'" alt="'.$device.'" src="'.$image.'"/>';
+            <img class="device '.$this->de_space($device).$selected.'" alt="Image:'.$device.'" src="'.$image.'"/>';
                 }else{ $image = ''; }
                 $return .= $image;
             }
@@ -496,11 +562,12 @@ class RIBBONS{
                     if( is_readable($image) && ! is_dir($image) ){
                         if( // Check for default or posted value.
                             ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/'.$planet2)] )
+                            && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
                         ){
                             $selected = ' selected';
                         }else{ $selected = ''; }
                         $image = '
-            <img class="device '.$this->de_space($planet2).$selected.'" alt="'.$planet2.'" src="'.$image.'"/>';
+            <img class="device '.$this->de_space($planet2).$selected.'" alt="Image:'.$planet2.'" src="'.$image.'"/>';
                     }else{ $image = ''; }
                     $return .= $image;
                 }
@@ -547,11 +614,12 @@ class RIBBONS{
                             if( is_readable($image) && ! is_dir($image) ){
                                 if( // Check for default or posted value.
                                     in_array( $i, $this_array[$each_rl] )
+                                    && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
                                 ){
                                     $selected = ' selected';
                                 }else{ $selected = ''; }
                                 $image = '
-            <img class="device '.$this->de_space($OLname).$selected.'" alt="'.$OLname.'" src="'.$image.'"/>';
+            <img class="device '.$this->de_space($OLname).$selected.'" alt="Image:'.$OLname.'" src="'.$image.'"/>';
                             }else{ $image = ''; }
                             $return .= $image;
                         }
@@ -568,11 +636,16 @@ class RIBBONS{
                     $image .= '/'.$effect.'.png';
                     if( is_readable($image) && ! is_dir($image) ){
                         if( // Check for default or posted value.
-                            $effect === @$_SESSION['ribbons']['effects/Texture']
-                            || ! empty( $_SESSION['ribbons']['effects/'.$name] )
-                        ){ $selected = ' selected'; }else{ $selected = ''; }
+                            (
+                                $effect === @$_SESSION['ribbons']['effects/Texture']
+                                || ! empty( $_SESSION['ribbons']['effects/'.$name] )
+                            )
+                            && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
+                        ){
+                            $selected = ' selected';
+                        }else{ $selected = ''; }
                         $image = '
-            <img class="effect '.$name.$selected.'" alt="'.$effect.'" src="'.$image.'"/>';
+            <img class="effect '.$name.$selected.'" alt="Image:'.$effect.'" src="'.$image.'"/>';
                     }else{ $image = ''; }
                     $return .= $image;
                 }

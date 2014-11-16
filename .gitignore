@@ -1,5 +1,5 @@
 # Custom stuff
-_gitignore
+_*
 
 # Windows image file caches
 Thumbs.db
