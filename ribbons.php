@@ -1,10 +1,12 @@
 <?php
 
-echo '<h2>KSP Ribbon Generator - Testing</h2>';
+echo '
+<h2>KSP Ribbon Generator - Testing</h2>
+<p>We\'re still under HEAVY construction, so don\'t forget to clear your cache, and please tell me about any issues you find.</p>';
 new RIBBONS;
 echo RIBBONS::$output;
 //return RIBBONS::$output;
-echo '<pre>'.print_r(@$_SESSION['ribbons'],true).'</pre>';
+//var_dump( @$_SESSION['ribbons'] );
 
 class RIBBONS{
     static
@@ -19,6 +21,7 @@ class RIBBONS{
     ,$asteroids = null
     ,$devices = null
     ,$devices_ordered = null
+    ,$gt_devices = null
     ,$effects = null
     ;
     // ALL SOI bodies are called "planets" here.
@@ -127,6 +130,17 @@ class RIBBONS{
                 )
             )
         );
+        static::$gt_devices = array(
+            'Kerbal Lost'
+            ,'Kerbal Saved'
+            ,'Probe'
+            ,'Capsule'
+            ,'Aircraft'
+            ,'Probe Lander'
+            ,'Probe Rover'
+            ,'Lander'
+            ,'Rover'
+        );
         static::$devices_ordered = array();
         foreach( static::$devices as $cat => $types ){
             if( $cat === 'Crafts' ){ continue; }
@@ -189,18 +203,231 @@ class RIBBONS{
             unset($_SESSION['ribbons']['Asteroid/Achieved']);
         }
     }
+
+    private function get_ribbons(){
+        $return = '';
+        $return .= '
+<div style="clear:both;"></div>
+<div id="ribbons_output" class="ribbons">';
+        $ri=0;
+        foreach( static::$planets as $planet => $attribs ){
+            $ri++;
+            if( ($ri-1) % 3 === 0 ){
+                if( $ri > 1 ){
+                    $return .= '
+    </div>';
+                }
+                $return .= '
+    <div class="column">';
+            }
+            $image = static::$images_root.'/ribbons/'.$planet.'.png';
+            if( $planet === 'Grand Tour' ){
+                $image = static::$images_root.'/ribbons/shield/Base Colours.png';
+                $height = 'height:96px;line-height:96px;';
+            }else{ $height = ''; }
+            if(!is_readable($image)||is_dir($image)){$image='';}
+            if( $planet !== 'Asteroid' ){
+                $image = '
+            <img class="ribbon_image" alt="'.$planet.'" src="'.$image.'"/>';
+            }
+            if(
+                ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
+            ){
+                $selected = ' selected';
+            }else{ $selected = ''; }
+            
+            $name_vis = '';
+            if( ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] ) ){
+                $name_vis = ' style="opacity:0;"';
+            }
+            $return .= '
+        <div  title="'.$planet.'" class="ribbon '.$this->de_space($planet).$selected.'" style="'.$height.'">'.$image.'
+            <span class="title"'.$name_vis.'>'.$planet.'</span>';
+            
+            // BEGIN Ribbon guts.
+            
+            if( $planet === 'Asteroid' ){
+                foreach( static::$planets as $planet2 => $attribs2 ){
+                    if(
+                        empty( $attribs2['Asteroid'] )
+                        || $planet2 === 'Asteroid'
+                    ){ continue; }
+                    if( // Check for default or posted value.
+                        $planet2 === @$_SESSION['ribbons'][$this->de_space($planet.'/Asteroid')]
+                        && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
+                    ){
+                        $selected = ' selected';
+                    }else{ $selected = ''; }
+                    $image = static::$images_root.'/ribbons/Asteroid - '.$planet2.'.png';
+                    if(!is_readable($image)||is_dir($image)){$image='';}
+                    $image = '
+            <img class="device '.$this->de_space($planet2).$selected.'" alt="Image:'.$device.'" src="'.$image.'"/>';
+                    $return .= $image;
+                }
+            }
+            
+            foreach( static::$devices_ordered as $device ){
+                // Devices in order of priority.
+                $type = $device[1];
+                $cat = $device[2];
+                $desc = $device[3];
+                $device = $device[0];
+                if(
+                    $type !== 'Common'
+                    && empty($attribs[$type])
+                    && empty($attribs[$device])
+                    && $planet !== 'Grand Tour'
+                ){ continue; }
+                if(
+                    $planet === 'Grand Tour'
+                    && ! in_array($device,static::$gt_devices)
+                ){
+                    continue;
+                }
+                if( // Check for default or posted value.
+                    (
+                        ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/'.$device)] )
+                        || $device === @$_SESSION['ribbons'][$this->de_space($planet.'/craft')]
+                    )
+                    && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
+                ){
+                    $selected = ' selected';
+                }else{ $selected = ''; }
+                $image = static::$images_root.'/ribbons';
+                if( $planet === 'Grand Tour' ){ $image .= '/shield'; }
+                $image .= '/'.$device.'.png';
+                if(!is_readable($image)||is_dir($image)){$image='';}
+                $image = '
+            <img class="device '.$this->de_space($device).$selected.'" alt="Image:'.$device.'" src="'.$image.'"/>';
+                $return .= $image;
+            }
+            
+            if( $planet === 'Grand Tour' ){
+                foreach( static::$planets as $planet2 => $attribs2 ){
+                    if(
+                        $planet2 === 'Kerbol'
+                        || $planet2 === 'Asteroid'
+                        || $planet2 === 'Grand Tour'
+                    ){ continue; }
+                    if( // Check for default or posted value.
+                        ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/'.$planet2)] )
+                        && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
+                    ){
+                        $selected = ' selected';
+                    }else{ $selected = ''; }
+                    $image = static::$images_root.'/ribbons/shield/'.$planet2.' Visit.png';
+                    if(!is_readable($image)||is_dir($image)){$image='';}
+                    $image = '
+            <img class="device '.$this->de_space($planet2).$selected.'" alt="Image:'.$planet2.'" src="'.$image.'"/>';
+                    $return .= $image;
+                }
+                
+                $o_l = array('Orbit','Landing');
+                foreach( $o_l as $each ){
+                    $$each = array('count'=>'','silvers'=>array(),'golds'=>array());
+                    $this_array = &$$each;
+                    $this_array['count'] = 0 + @$_SESSION['ribbons']['Grand_Tour/'.$each.'s'];
+                    if( $this_array['count'] > 0 ){
+                        
+                        array_push($this_array['golds'], 1);
+                        $count_i = $this_array['count']-1;
+                        $silvers = 0;
+                        $divisor = 7;
+                        while( $count_i > $divisor ){
+                            $silvers++;
+                            $count_i -= 5;
+                            $divisor -= 1;
+                        }
+                        $golds = $this_array['count'] - ($silvers * 5);
+                        
+                        $i=2;while( $i <= 8 ){
+                            if( $i <= $silvers + 1 ){
+                                array_push($this_array['silvers'], $i);
+                            }elseif( $i <= $silvers + $golds ){
+                                array_push($this_array['golds'], $i);
+                            }
+                            $i++;
+                        }
+                        
+                    }
+                }
+                
+                $i=1;while($i <= 8){
+                    foreach( array('Orbit','Landing') as $each ){
+                        $this_array = &$$each;
+                        $each_count = 0 + @$_SESSION['ribbons']['Grand_Tour/'.$each];
+                        foreach( array('',' Silver') as $each2 ){
+                            if( $each2 && $i === 1 ){ continue; }
+                            $OLname = $each.' '.$i.$each2;
+                            if( $each2 === '' ){ $each_rl = 'golds'; }
+                            else{ $each_rl = 'silvers'; }
+                            if( // Check for default or posted value.
+                                in_array( $i, $this_array[$each_rl] )
+                                && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
+                            ){
+                                $selected = ' selected';
+                            }else{ $selected = ''; }
+                            $image = static::$images_root.'/ribbons/shield/'.$OLname.'.png';
+                            if(!is_readable($image)||is_dir($image)){$image='';}
+                            $image = '
+            <img class="device '.$this->de_space($OLname).$selected.'" alt="Image:'.$OLname.'" src="'.$image.'"/>';
+                            $return .= $image;
+                        }
+                    }
+                    $i++;
+                }
+            }
+            
+            foreach( static::$effects as $val ){
+                foreach( $val as $effect ){
+                    if( // Check for default or posted value.
+                        (
+                            $effect === @$_SESSION['ribbons']['effects/Texture']
+                            || ! empty( $_SESSION['ribbons']['effects/'.$name] )
+                        )
+                    ){
+                        $selected = ' selected';
+                    }else{ $selected = ''; }
+                    $image = static::$images_root.'/ribbons';
+                    if( $planet === 'Grand Tour' ){ $image .= '/shield'; }
+                    $name = $this->de_space($effect);
+                    $image .= '/'.$effect.'.png';
+                    if(!is_readable($image)||is_dir($image)){$image='';}
+                    $image = '
+            <img class="effect '.$name.$selected.'" alt="Image:'.$effect.'" src="'.$image.'"/>';
+                    $return .= $image;
+                }
+            }
+            
+            // END Ribbon guts.
+            
+            $return .= '
+        </div>';
+            if( $ri === count(static::$planets) ){
+                $return .= '
+    </div>';
+            }
+        }
+        $return .= '
+</div>
+<div style="clear:both;"></div>
+';
+        return $return;
+    }
     
     private function get_form(){
         $return = '';
-        $member_message = 'This will save your ribbons for this session only.';
+        $submit_message = 'Save these ribbons (for this session ONLY).';
         if( ! empty( $_SESSION['logged_in'] ) ){
-            $member_message = 'This will permanently change your saved ribbons in the database.';
+            $submit_message = 'Save these ribbons to your account.';
         }
         $return .= '
 <div style="clear:both;"></div>
 <form class="ribbons" method="post"><fieldset>
     <div class="submit">
-        <input title="'.$member_message.'" type="submit" name="ribbons_submit" value="Save"/>&nbsp;&nbsp;<input type="reset" value="Cancel"/>
+        <input title="'.$submit_message.'" type="submit" name="ribbons_submit" value="Save"/>
+        &nbsp;&nbsp;
+        <input title="Revert to your last save." type="reset" value="Cancel"/>
         <hr/>
     </div>';
         
@@ -245,10 +472,9 @@ class RIBBONS{
                 }
                 
                 $image = static::$images_root.'/ribbons/'.$effect.'.png';
-                if( is_readable($image) && ! is_dir($image) ){
-                    $image = '
-                    <img alt="" src="'.$image.'"/>';
-                }else{ $image = ''; }
+                if(!is_readable($image)||is_dir($image)){$image='';}
+                $image = '
+                    <img alt="Image:'.$effect.'" src="'.$image.'"/>';
                 $return .= '
             <div class="input_box">
                 <label for="'.$id.'">
@@ -272,10 +498,11 @@ class RIBBONS{
         <h3 class="title">'.$planet.'</h3>';
             
             // BEGIN Planet guts.
-            $image = static::$images_root.'/ribbons/icons/'.$planet.'.png';
-            if( is_readable($image) && ! is_dir($image) ){
+            if( $planet !== 'Grand Tour' ){
+                $image = static::$images_root.'/ribbons/icons/'.$planet.'.png';
+                if(!is_readable($image)||is_dir($image)){$image='';}
                 $image = '
-                <img alt="'.$planet.'" src="'.$image.'"/>';
+                    <img alt="Image:'.$planet.'" src="'.$image.'"/>';
             }else{ $image = ''; }
             $name = $this->de_space($planet.'/Achieved');
             if( ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] ) ){
@@ -307,24 +534,23 @@ class RIBBONS{
                         || $planet2 === 'Asteroid'
                     ){ continue; }
                     $image = static::$images_root.'/ribbons/Asteroid - '.$planet2.'.png';
-                    if( is_readable($image) && ! is_dir($image) ){
-                        $image = '
+                    if(!is_readable($image)||is_dir($image)){$image='';}
+                    $image = '
                     <img alt="Image:'.$planet2.'" src="'.$image.'"/>';
-                        if( // Check for default or posted value.
-                            $planet2 === @$_SESSION['ribbons'][$this->de_space($planet.'/Asteroid')]
-                        ){
-                            $checked = ' checked="checked"';
-                        }else{ $checked = ''; }
-                        $name = 'Asteroid/Asteroid';
-                        $id = $name.'/'.$this->de_space($planet2);
-                        $return .= '
+                    if( // Check for default or posted value.
+                        $planet2 === @$_SESSION['ribbons'][$this->de_space($planet.'/Asteroid')]
+                    ){
+                        $checked = ' checked="checked"';
+                    }else{ $checked = ''; }
+                    $name = 'Asteroid/Asteroid';
+                    $id = $name.'/'.$this->de_space($planet2);
+                    $return .= '
             <div class="input_box Asteroid">
                 <label for="'.$id.'">
                     '.$planet2.$image.'
                 </label>
                 <input type="radio" id="'.$id.'" name="'.$name.'" value="'.$planet2.'"'.$checked.'/>
             </div>';
-                    }else{ $image = ''; }
                 }
             }elseif( $planet === 'Grand Tour' ){
                 // Orbits & Landings:
@@ -407,10 +633,9 @@ class RIBBONS{
                         }
                         
                         $image = static::$images_root.'/ribbons/icons/'.$device.'.png';
-                        if( is_readable($image) && ! is_dir($image) ){
-                            $image = '
+                        if(!is_readable($image)||is_dir($image)){$image='';}
+                        $image = '
                     <img alt="'.$device.'" src="'.$image.'"/>';
-                        }else{ $image = ''; }
                         $return .= '
             <div class="input_box">
                 <label for="'.$id.'" title="'.$desc.'">
@@ -432,10 +657,9 @@ class RIBBONS{
                 foreach( static::$planets as $planet2 => $attribs2 ){
                     if( $planet2 === 'Grand Tour' ){ continue; }
                     $image = static::$images_root.'/ribbons/icons/'.$planet2.'.png';
-                    if( is_readable($image) && ! is_dir($image) ){
-                        $image = '
+                    if(!is_readable($image)||is_dir($image)){$image='';}
+                    $image = '
                     <img alt="'.$planet2.'" src="'.$image.'"/>';
-                    }else{ $image = ''; }
                     $name = $this->de_space('Grand Tour/'.$planet2);
                     if( // Check for default or posted value.
                         ! empty( $_SESSION['ribbons'][$name] )
@@ -463,210 +687,6 @@ class RIBBONS{
         $return .= '
 </fieldset></form>
 <div style="clear:both;"></div>';
-        return $return;
-    }
-    
-    private function get_ribbons(){
-        $return = '';
-        $return .= '
-<div style="clear:both;"></div>
-<div id="ribbons_output" class="ribbons">';
-        $ri=0;
-        foreach( static::$planets as $planet => $attribs ){
-            $ri++;
-            if( ($ri-1) % 3 === 0 ){
-                if( $ri > 1 ){
-                    $return .= '
-    </div>';
-                }
-                $return .= '
-    <div class="column">';
-            }
-            $image = static::$images_root.'/ribbons/'.$planet.'.png';
-            if( $planet === 'Grand Tour' ){
-                $image = static::$images_root.'/ribbons/shield/Base Colours.png';
-                $height = 'height:96px;line-height:96px;';
-            }else{ $height = ''; }
-            if( is_readable($image) && ! is_dir($image) ){
-                $image = '
-            <img class="ribbon_image" alt="'.$planet.'" src="'.$image.'"/>';
-            }else{ $image = ''; }
-            if(
-                ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
-            ){
-                $selected = ' selected';
-            }else{ $selected = ''; }
-            
-            $name_vis = '';
-            if( ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] ) ){
-                $name_vis = ' style="opacity:0;"';
-            }
-            $return .= '
-        <div  title="'.$planet.'" class="ribbon '.$this->de_space($planet).$selected.'" style="'.$height.'">'.$image.'
-            <span class="title"'.$name_vis.'>'.$planet.'</span>';
-            
-            // BEGIN Ribbon guts.
-            
-            if( $planet === 'Asteroid' ){
-                foreach( static::$planets as $planet2 => $attribs2 ){
-                    if(
-                        empty( $attribs2['Asteroid'] )
-                        || $planet2 === 'Asteroid'
-                    ){ continue; }
-                    $image = static::$images_root.'/ribbons/Asteroid - '.$planet2.'.png';
-                    if( is_readable($image) && ! is_dir($image) ){
-                        if( // Check for default or posted value.
-                            $planet2 === @$_SESSION['ribbons'][$this->de_space($planet.'/Asteroid')]
-                            && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
-                        ){
-                            $selected = ' selected';
-                        }else{ $selected = ''; }
-                        $image = '
-            <img class="device '.$this->de_space($planet2).$selected.'" alt="Image:'.$device.'" src="'.$image.'"/>';
-                    }else{ $image = ''; }
-                    $return .= $image;
-                }
-            }
-            
-            foreach( static::$devices_ordered as $device ){
-                // Devices in order of priority.
-                $type = $device[1];
-                $cat = $device[2];
-                $desc = $device[3];
-                $device = $device[0];
-                if(
-                    $type !== 'Common'
-                    && empty($attribs[$type])
-                    && empty($attribs[$device])
-                    && $planet !== 'Grand Tour'
-                ){ continue; }
-                $image = static::$images_root.'/ribbons';
-                if( $planet === 'Grand Tour' ){ $image .= '/shield'; }
-                $image .= '/'.$device.'.png';
-                if( is_readable($image) && ! is_dir($image) ){
-                    if( // Check for default or posted value.
-                        (
-                            ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/'.$device)] )
-                            || $device === @$_SESSION['ribbons'][$this->de_space($planet.'/craft')]
-                        )
-                        && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
-                    ){
-                        $selected = ' selected';
-                    }else{ $selected = ''; }
-                    $image = '
-            <img class="device '.$this->de_space($device).$selected.'" alt="Image:'.$device.'" src="'.$image.'"/>';
-                }else{ $image = ''; }
-                $return .= $image;
-            }
-            
-            if( $planet === 'Grand Tour' ){
-                foreach( static::$planets as $planet2 => $attribs2 ){
-                    if( $planet2 === 'Grand Tour' ){ continue; }
-                    $image = static::$images_root.'/ribbons/shield/'.$planet2.' Visit.png';
-                    if( is_readable($image) && ! is_dir($image) ){
-                        if( // Check for default or posted value.
-                            ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/'.$planet2)] )
-                            && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
-                        ){
-                            $selected = ' selected';
-                        }else{ $selected = ''; }
-                        $image = '
-            <img class="device '.$this->de_space($planet2).$selected.'" alt="Image:'.$planet2.'" src="'.$image.'"/>';
-                    }else{ $image = ''; }
-                    $return .= $image;
-                }
-                
-                $o_l = array('Orbit','Landing');
-                foreach( $o_l as $each ){
-                    $$each = array('count'=>'','silvers'=>array(),'golds'=>array());
-                    $this_array = &$$each;
-                    $this_array['count'] = 0 + @$_SESSION['ribbons']['Grand_Tour/'.$each.'s'];
-                    if( $this_array['count'] > 0 ){
-                        
-                        array_push($this_array['golds'], 1);
-                        $count_i = $this_array['count']-1;
-                        $silvers = 0;
-                        $divisor = 7;
-                        while( $count_i > $divisor ){
-                            $silvers++;
-                            $count_i -= 5;
-                            $divisor -= 1;
-                        }
-                        $golds = $this_array['count'] - ($silvers * 5);
-                        
-                        $i=2;while( $i <= 8 ){
-                            if( $i <= $silvers + 1 ){
-                                array_push($this_array['silvers'], $i);
-                            }elseif( $i <= $silvers + $golds ){
-                                array_push($this_array['golds'], $i);
-                            }
-                            $i++;
-                        }
-                        
-                    }
-                }
-                
-                $i=1;while($i <= 8){
-                    foreach( array('Orbit','Landing') as $each ){
-                        $this_array = &$$each;
-                        $each_count = 0 + @$_SESSION['ribbons']['Grand_Tour/'.$each];
-                        foreach( array('',' Silver') as $each2 ){
-                            $OLname = $each.' '.$i.$each2;
-                            if( $each2 === '' ){ $each_rl = 'golds'; }
-                            else{ $each_rl = 'silvers'; }
-                            $image = static::$images_root.'/ribbons/shield/'.$OLname.'.png';
-                            if( is_readable($image) && ! is_dir($image) ){
-                                if( // Check for default or posted value.
-                                    in_array( $i, $this_array[$each_rl] )
-                                    && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
-                                ){
-                                    $selected = ' selected';
-                                }else{ $selected = ''; }
-                                $image = '
-            <img class="device '.$this->de_space($OLname).$selected.'" alt="Image:'.$OLname.'" src="'.$image.'"/>';
-                            }else{ $image = ''; }
-                            $return .= $image;
-                        }
-                    }
-                    $i++;
-                }
-            }
-            
-            foreach( static::$effects as $val ){
-                foreach( $val as $effect ){
-                    $image = static::$images_root.'/ribbons';
-                    if( $planet === 'Grand Tour' ){ $image .= '/shield'; }
-                    $name = $this->de_space($effect);
-                    $image .= '/'.$effect.'.png';
-                    if( is_readable($image) && ! is_dir($image) ){
-                        if( // Check for default or posted value.
-                            (
-                                $effect === @$_SESSION['ribbons']['effects/Texture']
-                                || ! empty( $_SESSION['ribbons']['effects/'.$name] )
-                            )
-                        ){
-                            $selected = ' selected';
-                        }else{ $selected = ''; }
-                        $image = '
-            <img class="effect '.$name.$selected.'" alt="Image:'.$effect.'" src="'.$image.'"/>';
-                    }else{ $image = ''; }
-                    $return .= $image;
-                }
-            }
-            
-            // END Ribbon guts.
-            
-            $return .= '
-        </div>';
-            if( $ri === count(static::$planets) ){
-                $return .= '
-    </div>';
-            }
-        }
-        $return .= '
-</div>
-<div style="clear:both;"></div>
-';
         return $return;
     }
     
