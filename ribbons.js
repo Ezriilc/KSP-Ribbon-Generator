@@ -1,10 +1,11 @@
 $(document).ready(function(){
     
-    $('.ribbons .planet').fadeOut(0);
     $('.ribbons input[type="submit"]').prop('disabled',true);
+    $('.ribbons input[type="reset"]').prop('disabled',true);
+    $('.ribbons .planet').fadeOut(0);
+    $('.ribbons .submit').fadeOut(0);
     
     $('.ribbons .ribbon').click(function(event){
-        $('.ribbons input[type="submit"]').fadeIn(0);
         var planetText = this.className.replace(/.*ribbon ([^\s]*).*/i,'$1');
         $('.ribbons .planet').not('.'+planetText).fadeOut(0);
         $('.ribbons .planet.'+planetText).fadeTo('slow',1);
@@ -12,6 +13,9 @@ $(document).ready(function(){
     
     $('.ribbons :input').change(function(event){
         myRibbons.update(this,event);
+    });
+    $('.ribbons :input[type="reset"]').click(function(event){
+        location = location.href;
     });
     
     $(document).scroll(function(event){
@@ -47,6 +51,8 @@ $(document).ready(function(){
     
     myRibbons.update = function(target,event){
         $('.ribbons input[type="submit"]').prop('disabled',false);
+        $('.ribbons input[type="reset"]').prop('disabled',false);
+        $('.ribbons .submit').fadeIn(0);
         var nameSplitPatt = /^([^\/]*)\/(.*)$/i;
         function makeVis(JQobj){
             if( ! JQobj ){ return; }

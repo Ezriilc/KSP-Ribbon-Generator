@@ -200,7 +200,8 @@ class RIBBONS{
 <div style="clear:both;"></div>
 <form class="ribbons" method="post"><fieldset>
     <div class="submit">
-        <input title="'.$member_message.'" type="submit" name="ribbons_submit" value="Save Ribbons"/>
+        <input title="'.$member_message.'" type="submit" name="ribbons_submit" value="Save"/>&nbsp;&nbsp;<input type="reset" value="Cancel"/>
+        <hr/>
     </div>';
         
         // Submit:
@@ -208,7 +209,6 @@ class RIBBONS{
         // Effects:
             $return .= '
     <div class="effects">
-        <hr/>
         <h3 class="title">Effects</h3>';
         foreach( static::$effects as $type => $effects ){
             $return .= '

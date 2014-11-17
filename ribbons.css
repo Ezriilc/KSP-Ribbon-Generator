@@ -48,8 +48,8 @@
 .ribbons .submit{
     text-align:center;
 }
-.ribbons .submit input[type="submit"]{
-    width:50%;
+.ribbons .submit input[type="submit"],
+.ribbons .submit input[type="reset"]{
     font-size:120%;
 }
 .ribbons .planet{
