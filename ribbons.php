@@ -181,6 +181,11 @@ class RIBBONS{
                 $_SESSION['ribbons'][$key] = $val;
             }
         }
+        if( ! empty( $_SESSION['ribbons']['Asteroid/Asteroid'] ) ){
+            $_SESSION['ribbons']['Asteroid/Achieved'] = 'on';
+        }else{
+            unset($_SESSION['ribbons']['Asteroid/Achieved']);
+        }
     }
     
     private function get_form(){
@@ -265,21 +270,18 @@ class RIBBONS{
         <h3 class="title">'.$planet.'</h3>';
             
             // BEGIN Planet guts.
-            if( ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] ) ){
-                $checked = ' checked="checked"';
-            }else{ $checked = ''; }
-            if(
-                $planet === 'Asteroid'
-                && ! $checked
-            ){
-                $disabled = ' disabled="disabled"';
-            }else{ $disabled = ''; }
             $image = static::$images_root.'/ribbons/icons/'.$planet.'.png';
             if( is_readable($image) && ! is_dir($image) ){
                 $image = '
                 <img alt="'.$planet.'" src="'.$image.'"/>';
             }else{ $image = ''; }
             $name = $this->de_space($planet.'/Achieved');
+            if( ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] ) ){
+                $checked = ' checked="checked"';
+            }else{ $checked = ''; }
+            if( $planet === 'Asteroid' ){
+                $disabled = ' disabled="disabled"';
+            }else{ $disabled = ''; }
             $return .= '
         <div class="category Achieved">
             <div class="input_box Achieved">

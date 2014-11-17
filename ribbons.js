@@ -81,15 +81,23 @@ $(document).ready(function(){
                 $(':input[name="'+target.groupText+'/Achieved"]').prop('checked',true);
             }
             if(
-                target.propText === 'Equatorial'
-                || target.propText === 'Polar'
-                || target.propText === 'Geosynchronous'
+                target.groupText === 'Asteroid'
+                && target.propText !== 'Asteroid'
+                && ! $(':input[name="'+target.groupText+'/Achieved"]').prop('checked')
             ){
-                $(':input[name="'+target.groupText+'/Orbit"]').prop('checked',true);
-                makeVis(target.ribbon.find('.device.Orbit'));
-                if( target.propText === 'Geosynchronous' ){
-                    $(':input[name="'+target.groupText+'/Equatorial"]').prop('checked',true);
-                    makeVis(target.ribbon.find('.device.Equatorial'));
+                alert('You need to choose an asteroid first.');
+            }else{
+                if(
+                    target.propText === 'Equatorial'
+                    || target.propText === 'Polar'
+                    || target.propText === 'Geosynchronous'
+                ){
+                    $(':input[name="'+target.groupText+'/Orbit"]').prop('checked',true);
+                    makeVis(target.ribbon.find('.device.Orbit'));
+                    if( target.propText === 'Geosynchronous' ){
+                        $(':input[name="'+target.groupText+'/Equatorial"]').prop('checked',true);
+                        makeVis(target.ribbon.find('.device.Equatorial'));
+                    }
                 }
             }
         }else{
@@ -101,19 +109,19 @@ $(document).ready(function(){
                 makeInvis(target.ribbon.find('.device.Polar'));
                 $(':input[name="'+target.groupText+'/Geosynchronous"]').prop('checked',false);
                 makeInvis(target.ribbon.find('.device.Geosynchronous'));
-            }else if( target.propText === 'Achieved' ){
-                target.planet.find(':input').prop('checked',false);
-                target.planet.find(':input[value="None"]').prop('checked',true);
-                target.planet.find('select').val('0');
             }else if(
-                target.propText === 'Asteroid'
-                && target.valText === 'None'
+                target.propText === 'Achieved'
+                || target.propText === 'Asteroid'
             ){
                 $(':input[name="'+target.groupText+'/Achieved"]').prop('checked',false);
             }
         }
+        if( ! target.planet ){ return; }
         target.achieved = $(':input[name="'+target.groupText+'/Achieved"]').prop('checked');
         if( ! target.achieved ){
+            target.planet.find(':input').prop('checked',false);
+            target.planet.find(':input[value="None"]').prop('checked',true);
+            target.planet.find('select').val('0');
             makeInvis(target.devices);
             if( target.ribbon ){
                 target.ribbon.fadeTo('slow',0.5);

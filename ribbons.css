@@ -78,23 +78,22 @@
     height:99%;
     cursor:pointer;
 }
-.ribbons .input_box label img{
+.ribbons .input_box img{
     position:absolute;
     left:0;
-    top:1em;
+    top:1.25em;
 }
-.ribbons .input_box.Achieved label img{
+.ribbons .input_box.Achieved img{
     width:100%;
 }
-.ribbons .effects .input_box img{
+.ribbons .effects .input_box img,
+.ribbons .input_box.Asteroid img{
     background-color:#eeeeee;
-    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.5);
-}
-.ribbons .effects .input_box label img{
+    box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.2);
     left:1em;
     top:2.75em;
 }
-.ribbons .planets .input_box label img{
+.ribbons .planets .input_box img{
     left:0;
     top:1.5em;
     width:100%;
