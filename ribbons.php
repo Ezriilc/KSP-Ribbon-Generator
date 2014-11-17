@@ -4,7 +4,7 @@ echo '<h2>KSP Ribbon Generator - Testing</h2>';
 new RIBBONS;
 echo RIBBONS::$output;
 //return RIBBONS::$output;
-var_dump(@$_SESSION);
+echo '<pre>'.print_r(@$_SESSION['ribbons'],true).'</pre>';
 
 class RIBBONS{
     static
@@ -156,7 +156,9 @@ class RIBBONS{
     private function get_input(){
         if( empty($_POST['ribbons_submit']) ){
             if( ! isset($_SESSION['ribbons']) ){
-                if( empty($_SESSION['logged_in']) ){
+// FIX THIS BEFORE PRODUCTION!
+                if( empty($_SESSION['logged_in_DISABLED']) ){
+// FIX THIS BEFORE PRODUCTION!
                     // Set everything to defaults.
                     $_SESSION['ribbons'] = array(
                         'effects/Texture' => 'Ribbon'
@@ -468,12 +470,12 @@ class RIBBONS{
         $return = '';
         $return .= '
 <div style="clear:both;"></div>
-<div class="ribbons">';
-        $i=0;
+<div id="ribbons_output" class="ribbons">';
+        $ri=0;
         foreach( static::$planets as $planet => $attribs ){
-            $i++;
-            if( ($i-1) % 3 === 0 ){
-                if( $i > 1 ){
+            $ri++;
+            if( ($ri-1) % 3 === 0 ){
+                if( $ri > 1 ){
                     $return .= '
     </div>';
                 }
@@ -642,7 +644,6 @@ class RIBBONS{
                                 $effect === @$_SESSION['ribbons']['effects/Texture']
                                 || ! empty( $_SESSION['ribbons']['effects/'.$name] )
                             )
-                            && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
                         ){
                             $selected = ' selected';
                         }else{ $selected = ''; }
@@ -657,6 +658,10 @@ class RIBBONS{
             
             $return .= '
         </div>';
+            if( $ri === count(static::$planets) ){
+                $return .= '
+    </div>';
+            }
         }
         $return .= '
 </div>

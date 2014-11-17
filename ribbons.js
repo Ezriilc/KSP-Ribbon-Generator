@@ -1,4 +1,5 @@
 $(document).ready(function(){
+    
     $('.ribbons .planet').fadeOut(0);
     $('.ribbons input[type="submit"]').prop('disabled',true);
     
@@ -13,7 +14,37 @@ $(document).ready(function(){
         myRibbons.update(this,event);
     });
     
+    $(document).scroll(function(event){
+        myRibbons.keepInView(event);
+    });
+    
     myRibbons = new Object();
+    
+    myRibbons.keepInView = function(event){
+        var ribbons = $('#ribbons_output');
+        var floater = $('#ribbons_output_floater');
+        if( ! floater.length ){
+            floater = ribbons.clone(true);
+            floater.prop('id','ribbons_output_floater');
+            floater.css('display','none');
+            floater.css('background-color','white');
+            floater.css('position','fixed');
+            floater.css('top','0');
+            floater.appendTo(document.body);
+        }
+        var topPos = ribbons.offset().top;
+        var leftPos = ribbons.offset().left;
+        var scrollPos = $(document).scrollTop();
+        var diff = scrollPos - topPos;
+        
+        if( diff > 0 ){
+            floater.css('display','');
+            floater.css('left',leftPos+'px');
+        }else{
+            floater.css('display','none');
+        }
+    };
+    
     myRibbons.update = function(target,event){
         $('.ribbons input[type="submit"]').prop('disabled',false);
         var nameSplitPatt = /^([^\/]*)\/(.*)$/i;
@@ -190,12 +221,6 @@ $(document).ready(function(){
             }
         }
         
-$('.debug_display').html(
-    'group: '+target.groupText+'\r\n'
-    +'prop: '+target.propText+'\r\n'
-    +'val: '+target.valText+'\r\n'
-);
-        
-    }
+    };
     
 });
