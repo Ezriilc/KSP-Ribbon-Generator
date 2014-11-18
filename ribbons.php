@@ -23,12 +23,9 @@ class RIBBONS{
 // To create a new database and tables, create an empty text file with this pathname.
     ,$ribbons_table = 'ribbons_TESTING'
     ,$images_root = './KSP_images'
-    ,$bad_db = '<p class="error message">Database failure.  Please try again.</p>'
     ,$output = null
     ,$dbcnnx = null
     ,$planets = null
-    ,$layout = null
-    ,$asteroids = null
     ,$devices = null
     ,$devices_ordered = null
     ,$gt_devices = null
@@ -360,6 +357,7 @@ VALUES (:id,:data)
         if( empty( $_SESSION['ribbons'] ) ){ return false; }
         $data = array();
         $split_patt = '/^([^\/]*)\/(.*)$/';
+        $at_least_one = false;
         foreach( $_SESSION['ribbons'] as $key => $val ){
             $group = preg_filter($split_patt,'$1',$key);
             $prop = preg_filter($split_patt,'$2',$key);
@@ -367,10 +365,16 @@ VALUES (:id,:data)
                 $data[$group] = array();
             }
             $data[$group][$prop] = $val;
+            if($group !== 'effects'){
+                $at_least_one = true;
+            }
         }
+        if( ! $at_least_one ){ return false; }
         $ribbons = array();
         foreach($data as $group => $props){
-            if( $group !== 'effects' ){
+            if( $group === 'effects' ){
+                
+            }else{
                 $ribbon = static::$images_root.'/ribbons';
                 if( $group === 'Grand Tour' ){
                     $ribbon .= '/shield/Base Colours.png';
@@ -382,10 +386,6 @@ VALUES (:id,:data)
                     $ribbons[$group] = array($ribbon);
                 }else{
                     die('FATAL ERROR: Can\'t read ribbon image: '.$ribbon);
-                }
-            }else{
-                foreach( static::$planets as $planet => $attribs ){
-                    
                 }
             }
             
@@ -476,6 +476,13 @@ VALUES (:id,:data)
                     AND empty($attribs[$type])
                     AND empty($attribs[$device])
                     AND $planet !== 'Grand Tour'
+                    AND ! (
+                        $planet === 'Kerbol'
+                        AND (
+                            $device === 'Kerbol Escape'
+                            || $device === 'Meteor'
+                        )
+                    )
                 ){ continue; }
                 if(
                     $planet === 'Grand Tour'
@@ -691,6 +698,7 @@ VALUES (:id,:data)
     </div>';
         
         // Planets:
+        
         foreach( static::$planets as $planet => $attribs ){
             $return .= '
     <div class="planet '.$this->de_space($planet).'">
@@ -698,6 +706,7 @@ VALUES (:id,:data)
         <h3 class="title">'.$planet.'</h3>';
             
             // BEGIN Planet guts.
+            
             if( $planet !== 'Grand Tour' ){
                 $image = static::$images_root.'/ribbons/icons/'.$planet.'.png';
                 if(!is_readable($image)||is_dir($image)){$image='';}
@@ -798,6 +807,13 @@ VALUES (:id,:data)
                             empty($attribs[$type])
                             AND empty($attribs[$device])
                             AND $type !== 'Common'
+                            AND ! (
+                                $planet === 'Kerbol'
+                                AND (
+                                    $device === 'Kerbol Escape'
+                                    || $device === 'Meteor'
+                                )
+                            )
                         ){ continue; }
                         if(
                             $planet === 'Grand Tour'
@@ -895,6 +911,6 @@ VALUES (:id,:data)
     }
     
 }
-
-// The KSP Ribbon Generator was created by Erickson Swift in August of 2014.  All rights reserved.
+// The KSP Ribbon Generator was created by Erickson Swift in August of 2014, based on an original design by Moustachauve.
+// All rights reserved.  Do not use, publish, duplicate or extend any of this code without expressed, written permission.
 ?>

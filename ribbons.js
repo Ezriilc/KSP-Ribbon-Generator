@@ -230,3 +230,6 @@ $(document).ready(function(){
     };
     
 });
+
+// The KSP Ribbon Generator was created by Erickson Swift in August of 2014, based on an original design by Moustachauve.
+// All rights reserved.  Do not use, publish, duplicate or extend any of this code without expressed, written permission.
