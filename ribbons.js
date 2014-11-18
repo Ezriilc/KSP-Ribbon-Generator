@@ -1,9 +1,9 @@
 $(document).ready(function(){
     
-    $('.ribbons input[type="submit"]').prop('disabled',true);
+    $('.ribbons input[type="submit"]').not('.generate').prop('disabled',true);
     $('.ribbons input[type="reset"]').prop('disabled',true);
     $('.ribbons .planet').fadeOut(0);
-    $('.ribbons .submit').fadeOut(0);
+//    $('.ribbons .submit').fadeOut(0);
     
     $('.ribbons .ribbon').click(function(event){
         var planetText = this.className.replace(/.*ribbon ([^\s]*).*/i,'$1');
