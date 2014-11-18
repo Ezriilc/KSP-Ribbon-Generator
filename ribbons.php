@@ -2,7 +2,7 @@
 
 echo '
 <h2>KSP Ribbon Generator - Testing</h2>
-<p>We\'re still under HEAVY construction, so don\'t forget to clear your cache, and please tell me about any issues you find.</p>';
+<p>We\'re still under HEAVY construction, so don\'t forget to clear your cache, and please <a title="Contact Us" href="http://www.kerbaltekaerospace.com/?page=contact">tell me</a> about any issues you find.</p>';
 new RIBBONS;
 echo RIBBONS::$output;
 //return RIBBONS::$output;
@@ -10,7 +10,7 @@ echo RIBBONS::$output;
 
 class RIBBONS{
     static
-    $db_file = '../../sqlite/ribbons_TESTING.sqlite3'
+    $db_file = '../../sqlite/KSP-Ribbons_TESTING.sqlite3'
 // To create a new database and tables, create an empty text file by this name.
     ,$ribbons_table = 'ribbons_TESTING'
     ,$images_root = './KSP_images'
@@ -215,6 +215,7 @@ VALUES (0,'Admin/DefaultData')
     private function load_ribbons(){
         if(
             ! isset( $_SESSION['user']['id'] )
+            || empty( $_SESSION['logged_in'] )
         ){ return false; }
         $this->init_database();
         if(
@@ -249,6 +250,7 @@ LIMIT 1
     private function save_ribbons(){
         if(
             ! isset( $_SESSION['user']['id'] )
+            || empty( $_SESSION['logged_in'] )
             || ! isset( $_SESSION['ribbons'] )
         ){ return false; }
         $this->init_database();
@@ -313,20 +315,19 @@ VALUES (:id,:data)
                 $_SESSION['ribbons'][$key] = $val;
             }
         }elseif( ! isset($_SESSION['ribbons']) ){
-            if(
-                ! empty($_SESSION['logged_in'])
-            ){
-                // Load ribbons from database.
-                $this->load_ribbons();
-            }
+            // Load ribbons from database.
+            $this->load_ribbons();
             if( ! isset($_SESSION['ribbons']) ){
-                // Set everything to defaults.
+                
+                // Set defaults.
                 $_SESSION['ribbons'] = array(
                     'effects/Texture' => 'Ribbon'
                 );
+                
             }
         }
-        // Loading and defaults is done - do any weird stuff here.
+        
+        // Loading and defaults are done - do any weird stuff to the data here.
         
         if( ! empty( $_SESSION['ribbons']['Asteroid/Asteroid'] ) ){
             $_SESSION['ribbons']['Asteroid/Achieved'] = 'on';
@@ -338,6 +339,53 @@ VALUES (:id,:data)
         if( $new_data ){
             $this->save_ribbons();
         }
+    }
+    
+    private function generate_image(){
+        if( empty( $_SESSION['ribbons'] ) ){ return false; }
+        $data = array();
+        $split_patt = '/^([^\/]*)\/(.*)$/';
+        foreach( $_SESSION['ribbons'] as $key => $val ){
+            $group = preg_filter($split_patt,'$1',$key);
+            $prop = preg_filter($split_patt,'$2',$key);
+            if( ! isset( $data[$group] ) ){
+                $data[$group] = array();
+            }
+            $data[$group][$prop] = $val;
+        }
+        $ribbons = array();
+        foreach($data as $group => $props){
+            if( $group !== 'effects' ){
+                $ribbon = static::$images_root.'/ribbons';
+                if( $group === 'Grand Tour' ){
+                    $ribbon .= '/shield/Base Colours.png';
+                }else{
+                    $ribbon .= '/'.$group.'.png';
+                }
+                if( is_readable($ribbon) AND ! is_dir($ribbon) ){
+                    $ribbon = imagecreatefrompng($ribbon);
+                    $ribbons[$group] = array($ribbon);
+                }else{
+                    die('FATAL ERROR: Can\'t read ribbon image: '.$ribbon);
+                }
+            }else{
+                foreach( static::$planets as $planet => $attribs ){
+                    
+                }
+            }
+            
+            foreach( $props as $prop => $val ){
+                $device = imagecreatefrompng($image_path.$image);
+                imagecopy($ribbon_image, $image, 0,0, 0,0, 120,97);
+                imagedestroy($image);
+            }
+            
+        }
+
+        header('Content-Type: image/png');
+        imagepng($ribbon_image);
+        imagedestroy($ribbon_image);
+        
     }
 
     private function get_ribbons(){
@@ -553,15 +601,16 @@ VALUES (:id,:data)
     
     private function get_form(){
         $return = '';
-        $submit_message = 'Save these ribbons (for this session ONLY).';
+        $submit_message = 'You\'re <em>not</em> logged in. Ribbons will be saved for this session only.';
         if( ! empty( $_SESSION['logged_in'] ) ){
-            $submit_message = 'Save these ribbons to your account.';
+            $submit_message = 'You\'re logged in! Ribbons will be saved to the database.';
         }
         $return .= '
 <div style="clear:both;"></div>
 <form class="ribbons" method="post"><fieldset>
     <div class="submit">
-        <input title="'.$submit_message.'" type="submit" name="ribbons_submit" value="Save"/>
+        '.$submit_message.'
+        <input title="Save these ribbons." type="submit" name="ribbons_submit" value="Save"/>
         &nbsp;&nbsp;
         <input title="Revert to your last save." type="reset" value="Cancel"/>
         <hr/>
@@ -791,7 +840,11 @@ VALUES (:id,:data)
                 $return .= '
         <div class="category planets">';
                 foreach( static::$planets as $planet2 => $attribs2 ){
-                    if( $planet2 === 'Grand Tour' ){ continue; }
+                    if(
+                        $planet2 === 'Grand Tour'
+                        || $planet2 === 'Kerbol'
+                        || $planet2 === 'Asteroid'
+                    ){ continue; }
                     $image = static::$images_root.'/ribbons/icons/'.$planet2.'.png';
                     if(!is_readable($image)||is_dir($image)){$image='';}
                     $image = '
