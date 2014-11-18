@@ -184,10 +184,10 @@ class RIBBONS{
         if(
             $stmt = static::$dbcnnx->prepare("
 SELECT name FROM sqlite_master
-WHERE type='table' && name='".static::$ribbons_table."';
+WHERE type='table' AND name='".static::$ribbons_table."';
 ")
-            && $stmt->execute()
-            && $result = $stmt->fetch(PDO::FETCH_ASSOC)
+            AND $stmt->execute()
+            AND $result = $stmt->fetch(PDO::FETCH_ASSOC)
         ){
             $table_exists = true;
         }elseif(
@@ -197,7 +197,12 @@ id INTEGER NOT NULL UNIQUE
 ,data TEXT NOT NULL
 );
 ")
-            && $stmt->execute()
+            AND $stmt->execute()
+            AND $stmt = static::$dbcnnx->prepare("
+INSERT INTO ".static::$ribbons_table." (id,data)
+VALUES (0,'Admin/DefaultData')
+")
+            AND $stmt->execute()
         ){
             $table_created = true;
             die('NOTICE: A new table was created and tested. Please try again.');
@@ -218,9 +223,9 @@ SELECT data FROM ".static::$ribbons_table."
 WHERE id=:id
 LIMIT 1
 ")
-            && $stmt->bindValue(':id', $_SESSION['user']['id'], PDO::PARAM_INT)
-            && $stmt->execute()
-            && $result = $stmt->fetch(PDO::FETCH_ASSOC)
+            AND $stmt->bindValue(':id', $_SESSION['user']['id'], PDO::PARAM_INT)
+            AND $stmt->execute()
+            AND $result = $stmt->fetch(PDO::FETCH_ASSOC)
         ){
             if(
                 !empty($result['data'])
@@ -233,7 +238,7 @@ LIMIT 1
                 foreach($data as $pair){
                     $prop = preg_filter($split_patt,'$1',$pair);
                     $val = preg_filter($split_patt,'$2',$pair);
-                    if( $prop && $val ){
+                    if( $prop AND $val ){
                         $_SESSION['ribbons'][$prop] = $val;
                     }
                 }
@@ -242,7 +247,6 @@ LIMIT 1
     }
     
     private function save_ribbons(){
-$_SESSION['user']['id'] = '0';
         if(
             ! isset( $_SESSION['user']['id'] )
             || ! isset( $_SESSION['ribbons'] )
@@ -262,17 +266,17 @@ SELECT data FROM ".static::$ribbons_table."
 WHERE id=:id
 LIMIT 1
 ")
-            && $stmt->bindValue(':id', $_SESSION['user']['id'], PDO::PARAM_INT)
-            && $stmt->execute()
-            && $result = $stmt->fetch(PDO::FETCH_ASSOC)
-            && $stmt = static::$dbcnnx->prepare("
+            AND $stmt->bindValue(':id', $id, PDO::PARAM_INT)
+            AND $stmt->execute()
+            AND $result = $stmt->fetch(PDO::FETCH_ASSOC)
+            AND $stmt = static::$dbcnnx->prepare("
 UPDATE ".static::$ribbons_table." SET data=:data
 WHERE id=:id
 ")
-            && $stmt->bindValue(':data', $data, PDO::PARAM_STR)
-            && $stmt->bindValue(':id', $id, PDO::PARAM_INT)
-            && $stmt->execute()
-            && $count = $stmt->rowCount()
+            AND $stmt->bindValue(':data', $data, PDO::PARAM_STR)
+            AND $stmt->bindValue(':id', $id, PDO::PARAM_INT)
+            AND $stmt->execute()
+            AND $count = $stmt->rowCount()
         ){
             $success = true;
         }elseif(
@@ -280,10 +284,10 @@ WHERE id=:id
 INSERT INTO ".static::$ribbons_table." (id,data)
 VALUES (:id,:data)
 ")
-            && $stmt->bindValue(':id', $id, PDO::PARAM_INT)
-            && $stmt->bindValue(':data', $data, PDO::PARAM_STR)
-            && $stmt->execute()
-            && $result = $stmt->fetch(PDO::FETCH_ASSOC)
+            AND $stmt->bindValue(':id', $id, PDO::PARAM_INT)
+            AND $stmt->bindValue(':data', $data, PDO::PARAM_STR)
+            AND $stmt->execute()
+            AND $result = $stmt->fetch(PDO::FETCH_ASSOC)
         ){
             $success = true;
         }else{
@@ -386,7 +390,7 @@ VALUES (:id,:data)
                     ){ continue; }
                     if( // Check for default or posted value.
                         $planet2 === @$_SESSION['ribbons'][$this->de_space($planet.'/Asteroid')]
-                        && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
+                        AND ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
                     ){
                         $selected = ' selected';
                     }else{ $selected = ''; }
@@ -406,13 +410,13 @@ VALUES (:id,:data)
                 $device = $device[0];
                 if(
                     $type !== 'Common'
-                    && empty($attribs[$type])
-                    && empty($attribs[$device])
-                    && $planet !== 'Grand Tour'
+                    AND empty($attribs[$type])
+                    AND empty($attribs[$device])
+                    AND $planet !== 'Grand Tour'
                 ){ continue; }
                 if(
                     $planet === 'Grand Tour'
-                    && ! in_array($device,static::$gt_devices)
+                    AND ! in_array($device,static::$gt_devices)
                 ){
                     continue;
                 }
@@ -421,7 +425,7 @@ VALUES (:id,:data)
                         ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/'.$device)] )
                         || $device === @$_SESSION['ribbons'][$this->de_space($planet.'/craft')]
                     )
-                    && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
+                    AND ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
                 ){
                     $selected = ' selected';
                 }else{ $selected = ''; }
@@ -443,7 +447,7 @@ VALUES (:id,:data)
                     ){ continue; }
                     if( // Check for default or posted value.
                         ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/'.$planet2)] )
-                        && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
+                        AND ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
                     ){
                         $selected = ' selected';
                     }else{ $selected = ''; }
@@ -489,13 +493,13 @@ VALUES (:id,:data)
                         $this_array = &$$each;
                         $each_count = 0 + @$_SESSION['ribbons']['Grand_Tour/'.$each];
                         foreach( array('',' Silver') as $each2 ){
-                            if( $each2 && $i === 1 ){ continue; }
+                            if( $each2 AND $i === 1 ){ continue; }
                             $OLname = $each.' '.$i.$each2;
                             if( $each2 === '' ){ $each_rl = 'golds'; }
                             else{ $each_rl = 'silvers'; }
                             if( // Check for default or posted value.
                                 in_array( $i, $this_array[$each_rl] )
-                                && ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
+                                AND ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
                             ){
                                 $selected = ' selected';
                             }else{ $selected = ''; }
@@ -700,7 +704,7 @@ VALUES (:id,:data)
                             $i == @$_SESSION['ribbons'][$name]
                             ||(
                                 $i == 0
-                                && empty( $_SESSION['ribbons'][$name] )
+                                AND empty( $_SESSION['ribbons'][$name] )
                             )
                         ){
                             $selected = ' selected="selected"';
@@ -728,12 +732,12 @@ VALUES (:id,:data)
                         $desc = $details[1] ? : '';
                         if(
                             empty($attribs[$type])
-                            && empty($attribs[$device])
-                            && $type !== 'Common'
+                            AND empty($attribs[$device])
+                            AND $type !== 'Common'
                         ){ continue; }
                         if(
                             $planet === 'Grand Tour'
-                            && ! is_readable( static::$images_root.'/ribbons/shield/'.$device.'.png' )
+                            AND ! is_readable( static::$images_root.'/ribbons/shield/'.$device.'.png' )
                         ){ continue; }
                         $input_type = 'checkbox';
                         $name = $this->de_space($planet.'/'.$device);
