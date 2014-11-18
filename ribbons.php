@@ -10,9 +10,10 @@ echo RIBBONS::$output;
 
 class RIBBONS{
     static
-    $db_file = './_sqlite/ribbons.sqlite3'
+    $db_file = '../../sqlite/ribbons_TESTING.sqlite3'
+// To create a new database and tables, create an empty text file by this name.
+    ,$ribbons_table = 'ribbons_TESTING'
     ,$images_root = './KSP_images'
-    ,$ribbons_table = 'ribbons'
     ,$bad_db = '<p class="error message">Database failure.  Please try again.</p>'
     ,$output = null
     ,$dbcnnx = null
@@ -167,22 +168,133 @@ class RIBBONS{
         return preg_replace('/\s+/','_',$in_out);
     }
     
-    private function get_input(){
-        if( empty($_POST['ribbons_submit']) ){
-            if( ! isset($_SESSION['ribbons']) ){
-// FIX THIS BEFORE PRODUCTION!
-                if( empty($_SESSION['logged_in_DISABLED']) ){
-// FIX THIS BEFORE PRODUCTION!
-                    // Set everything to defaults.
-                    $_SESSION['ribbons'] = array(
-                        'effects/Texture' => 'Ribbon'
-                    );
-                }else{
-                    // Load ribbons from database.
-                    
+    private function init_database(){
+        if(
+            ! is_writable(static::$db_file)
+            || ! is_writable(dirname(static::$db_file))
+        ){
+            die('FATAL ERROR: The database file or directory doesn\'t exist or isn\'t writeable.');
+        }
+        try{
+            static::$dbcnnx = new PDO('sqlite:'.static::$db_file);
+        }
+        catch( PDOException $Exception ){
+            die('FATAL ERROR: An exception occurred when opening the database.');
+        }
+        if(
+            $stmt = static::$dbcnnx->prepare("
+SELECT name FROM sqlite_master
+WHERE type='table' && name='".static::$ribbons_table."';
+")
+            && $stmt->execute()
+            && $result = $stmt->fetch(PDO::FETCH_ASSOC)
+        ){
+            $table_exists = true;
+        }elseif(
+            $stmt = static::$dbcnnx->prepare("
+CREATE TABLE ".static::$ribbons_table."(
+id INTEGER NOT NULL UNIQUE
+,data TEXT NOT NULL
+);
+")
+            && $stmt->execute()
+        ){
+            $table_created = true;
+            die('NOTICE: A new table was created and tested. Please try again.');
+        }else{
+            die('FATAL ERROR: Table creation failed.');
+        }
+    }
+
+    
+    private function load_ribbons(){
+        if(
+            ! isset( $_SESSION['user']['id'] )
+        ){ return false; }
+        $this->init_database();
+        if(
+            $stmt = static::$dbcnnx->prepare("
+SELECT data FROM ".static::$ribbons_table."
+WHERE id=:id
+LIMIT 1
+")
+            && $stmt->bindValue(':id', $_SESSION['user']['id'], PDO::PARAM_INT)
+            && $stmt->execute()
+            && $result = $stmt->fetch(PDO::FETCH_ASSOC)
+        ){
+            if(
+                !empty($result['data'])
+            ){
+                if( ! $data = explode('|',$result['data']) ){
+                    die('Can\'t read db data.');
+                }
+                $_SESSION['ribbons'] = array();
+                $split_patt = '/^([^=]*)=(.*)$/';
+                foreach($data as $pair){
+                    $prop = preg_filter($split_patt,'$1',$pair);
+                    $val = preg_filter($split_patt,'$2',$pair);
+                    if( $prop && $val ){
+                        $_SESSION['ribbons'][$prop] = $val;
+                    }
                 }
             }
+        }
+    }
+    
+    private function save_ribbons(){
+$_SESSION['user']['id'] = '0';
+        if(
+            ! isset( $_SESSION['user']['id'] )
+            || ! isset( $_SESSION['ribbons'] )
+        ){ return false; }
+        $this->init_database();
+        $data = '';
+        $i = count($_SESSION['ribbons']);
+        foreach( $_SESSION['ribbons'] as $key => $val ){
+            $data .= $key.'='.$val;
+            if( --$i ){ $data .= '|'; }
+        }
+        $id = 0 + $_SESSION['user']['id'];
+        
+        if(
+            $stmt = static::$dbcnnx->prepare("
+SELECT data FROM ".static::$ribbons_table."
+WHERE id=:id
+LIMIT 1
+")
+            && $stmt->bindValue(':id', $_SESSION['user']['id'], PDO::PARAM_INT)
+            && $stmt->execute()
+            && $result = $stmt->fetch(PDO::FETCH_ASSOC)
+            && $stmt = static::$dbcnnx->prepare("
+UPDATE ".static::$ribbons_table." SET data=:data
+WHERE id=:id
+")
+            && $stmt->bindValue(':data', $data, PDO::PARAM_STR)
+            && $stmt->bindValue(':id', $id, PDO::PARAM_INT)
+            && $stmt->execute()
+            && $count = $stmt->rowCount()
+        ){
+            $success = true;
+        }elseif(
+            $stmt = static::$dbcnnx->prepare("
+INSERT INTO ".static::$ribbons_table." (id,data)
+VALUES (:id,:data)
+")
+            && $stmt->bindValue(':id', $id, PDO::PARAM_INT)
+            && $stmt->bindValue(':data', $data, PDO::PARAM_STR)
+            && $stmt->execute()
+            && $result = $stmt->fetch(PDO::FETCH_ASSOC)
+        ){
+            $success = true;
         }else{
+            die('FATAL ERROR: Can\'t save data.');
+        }
+    }
+    
+    private function get_input(){
+        $new_data = false;
+        if( ! empty($_POST['ribbons_submit']) ){
+            $new_data = true;
             $_SESSION['ribbons'] = array();
             foreach( $_POST as $key => $val ){
                 // Basic post scrubbing.
@@ -196,11 +308,31 @@ class RIBBONS{
                 ){ continue; }
                 $_SESSION['ribbons'][$key] = $val;
             }
+        }elseif( ! isset($_SESSION['ribbons']) ){
+            if(
+                ! empty($_SESSION['logged_in'])
+            ){
+                // Load ribbons from database.
+                $this->load_ribbons();
+            }
+            if( ! isset($_SESSION['ribbons']) ){
+                // Set everything to defaults.
+                $_SESSION['ribbons'] = array(
+                    'effects/Texture' => 'Ribbon'
+                );
+            }
         }
+        // Loading and defaults is done - do any weird stuff here.
+        
         if( ! empty( $_SESSION['ribbons']['Asteroid/Asteroid'] ) ){
             $_SESSION['ribbons']['Asteroid/Achieved'] = 'on';
         }else{
             unset($_SESSION['ribbons']['Asteroid/Achieved']);
+        }
+        
+        // Weird stuff done, save if needed.
+        if( $new_data ){
+            $this->save_ribbons();
         }
     }
 
@@ -380,6 +512,7 @@ class RIBBONS{
             
             foreach( static::$effects as $val ){
                 foreach( $val as $effect ){
+                    $name = $this->de_space($effect);
                     if( // Check for default or posted value.
                         (
                             $effect === @$_SESSION['ribbons']['effects/Texture']
@@ -390,7 +523,6 @@ class RIBBONS{
                     }else{ $selected = ''; }
                     $image = static::$images_root.'/ribbons';
                     if( $planet === 'Grand Tour' ){ $image .= '/shield'; }
-                    $name = $this->de_space($effect);
                     $image .= '/'.$effect.'.png';
                     if(!is_readable($image)||is_dir($image)){$image='';}
                     $image = '
