@@ -1,17 +1,26 @@
 <?php
-
-echo '
-<h2>KSP Ribbon Generator - Testing</h2>
-<p>We\'re still under HEAVY construction, so don\'t forget to clear your cache, and please <a title="Contact Us" href="http://www.kerbaltekaerospace.com/?page=contact">tell me</a> about any issues you find.</p>';
 new RIBBONS;
+echo '
+<div style="
+    width:840px;
+    margin:auto;
+    text-align:center;
+">
+    <h2>KSP Ribbon Generator - Testing</h2>
+    <p>We\'re still under HEAVY construction, so don\'t forget to clear your cache, and please tell me about any issues you find.</p>
+    <h3><a onclick="window.open(this.href);return false;" title="Contact Us" href="http://www.kerbaltekaerospace.com/?page=contact">Contact Form</a></h3>
+    <h3><a onclick="window.open(this.href);return false;" title="[WEB APP] KSP Ribbon Generator" href="http://forum.kerbalspaceprogram.com/threads/86422">KSP Forum Thread</a></h3>';
 echo RIBBONS::$output;
+echo '
+</div>
+';
 //return RIBBONS::$output;
 //var_dump( @$_SESSION['ribbons'] );
 
 class RIBBONS{
     static
-    $db_file = '../../sqlite/KSP-Ribbons_TESTING.sqlite3'
-// To create a new database and tables, create an empty text file by this name.
+    $db_file = '../../../sqlite/KSP-Ribbons_TESTING.sqlite3'
+// To create a new database and tables, create an empty text file with this pathname.
     ,$ribbons_table = 'ribbons_TESTING'
     ,$images_root = './KSP_images'
     ,$bad_db = '<p class="error message">Database failure.  Please try again.</p>'
@@ -32,21 +41,27 @@ class RIBBONS{
             'Kerbol'        =>'0010001'
             ,'Moho'	        =>'1000001'
             ,'Asteroid'     =>'1010010'
+            
             ,'Eve'          =>'1110101'
             ,'Gilly'        =>'1010010'
-            ,'Eeloo'        =>'1010000'
+            ,'Dres'         =>'1010000'
+            
             ,'Kerbin'       =>'1111101'
             ,'Mun'          =>'1001000'
             ,'Minmus'       =>'1011010'
+            
             ,'Duna'         =>'1111001'
             ,'Ike'          =>'1011010'
-            ,'Dres'         =>'1010000'
+            ,'Vall'         =>'1000000'
+            
             ,'Jool'         =>'0110001'
             ,'Laythe'       =>'1100000'
-            ,'Vall'         =>'1000000'
             ,'Tylo'         =>'1001100'
+            
+            ,'Eeloo'        =>'1010000'
             ,'Bop'          =>'1001010'
             ,'Pol'          =>'1000010'
+            
             ,'Grand Tour'   =>'1100000'
         );
         $planet_attributes = array('Surface', 'Atmosphere', 'Geosynchronous', 'Anomaly', 'Challenge Wreath', 'Extreme EVA', 'Asteroid'); // Number strings above.
@@ -97,8 +112,8 @@ class RIBBONS{
                     ,'Capsule'          => array(0, 'Manned craft which does not land, or only performs a single, uncontrolled landing.')
                     ,'Resource'         => array(0, 'Installation on the surface or in orbit, capable of mining and/or processing resources.')
                     ,'Aircraft'         => array(0, 'Winged craft capable of atmospheric flight, with or without any atmosphere - does not grant Flight Wings device.')
-                    ,'Multi-Part Ship'  => array(0, 'Orbital vessel capable of docking and long-term habitation by multiple Kerbals.')
-                    ,'Station'          => array(0, 'A craft constructed from multiple parts in orbit.')
+                    ,'Multi-Part Ship'  => array(0, 'A craft constructed from multiple parts in orbit.')
+                    ,'Station'          => array(0, 'Orbital vessel capable of docking and long-term habitation by multiple Kerbals.')
                     ,'Armada'           => array(0, 'Three or more vessels, staged in orbit for a trip to another world, and launched within one week during one encounter window.')
                     ,'Armada 2'         => array(0, 'Three or more vessels, staged in orbit for a trip to another world, and launched within one week during one encounter window.')
                 )
@@ -880,4 +895,6 @@ VALUES (:id,:data)
     }
     
 }
+
+// The KSP Ribbon Generator was created by Erickson Swift in August of 2014.  All rights reserved.
 ?>
