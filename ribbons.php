@@ -136,6 +136,7 @@ class RIBBONS{
             ,'Probe Lander'
             ,'Probe Rover'
             ,'Lander'
+            ,'Multi-Part Ship'
             ,'Rover'
         );
         static::$devices_ordered = array();
@@ -160,6 +161,7 @@ class RIBBONS{
             static::$user_id = $_SESSION['user_id'];
         }
         
+        // Done setting up.  Now do stuff.
         
         $this->get_input();
 //        $this->init_database(); // Here for testing, not needed unless save/load fires.
@@ -181,14 +183,12 @@ class RIBBONS{
     }
     
     private function generate_image(){
-        
-        // VERY rough.  I'm a total noob at imaging in PHP.
-        
         if( empty( $_SESSION['ribbons'] ) ){ return false; }
         $data = array();
         $split_patt = '/^([^\/]*)\/(.*)$/';
         $at_least_one = false;
         foreach( $_SESSION['ribbons'] as $key => $val ){
+            $key = $this->re_space( $key );
             $group = preg_filter($split_patt,'$1',$key);
             $prop = preg_filter($split_patt,'$2',$key);
             if( ! isset( $data[$group] ) ){
@@ -200,67 +200,109 @@ class RIBBONS{
             }
         }
         if( ! $at_least_one ){ return false; }
+        
+        // VERY rough.  I'm a total noob at imaging in PHP.
+        
+        
+        $base_image = imagecreatetruecolor( 840, 96 );
+        $bg = imagecolorallocatealpha($base_image, 255,255,255, 127);
+        imagefill($base_image, 0,0, $bg);
+        
         $ribbons = array();
         foreach($data as $group => $props){
-            $ribbon = false;
             if( $group === 'effects' ){
                 
             }else{
-                $ribbon = static::$images_root.'/ribbons';
-                if( $group === 'Grand Tour' ){
-                    $ribbon .= '/shield/Base Colours.png';
+                if(
+                    $group === 'Asteroid'
+                    && ! empty($props['Asteroid'])
+                ){
+                    $image_name = $props['Asteroid'];
+                }elseif( $group === 'Grand Tour' ){
+                    $image_name = 'shield/Base Colours';
                 }else{
-                    $ribbon .= '/'.$group.'.png';
+                    $image_name = $group;
                 }
-                if( is_readable($ribbon) AND ! is_dir($ribbon) ){
-                    $ribbon = imagecreatefrompng($ribbon);
-                    $ribbons[$group] = array($ribbon);
+                $image = static::$images_root.'/ribbons/'.$image_name.'.png';
+                if( is_readable($image) AND ! is_dir($image) ){
+                    $ribbons[$group] = imagecreatefrompng($image);
                 }else{
-                    die('FATAL ERROR: Can\'t read ribbon image: '.$ribbon);
+                    die('<br/>FATAL ERROR: Can\'t read ribbon image: '.$image);
                 }
                 foreach( $props as $prop => $val ){
-                    if(
-                        $val === 'on'
-                        AND $prop === 'Achieved'
-                    ){ continue; }
-                    if(
+                    if( $val === 'on' AND $prop === 'Achieved' ){ continue; }
+                    if( $prop === 'Orbits' OR $prop === 'Landings' ){
+                        
+// Do that voodoo that I do for this... but for now...
+continue;
+                        
+                    }elseif(
                         $val === 'on'
                     ){
-                        $image = $this->re_space($prop);
-                    }else{ $image = $val; }
+                        $image_name = $prop;
+                    }else{ $image_name = $val; }
                     
-                    $layer = static::$images_root.'/ribbons';
+                    $image = static::$images_root.'/ribbons/';
                     if( $group === 'Grand Tour' ){
-                        $layer .= '/shield';
+                        $image .= 'shield/'.$image_name;
+                        if( array_key_exists( $image_name, static::$planets ) ){
+                            $image .= ' Visit';
+                        }
+                        $image .= '.png';
                     }else{
-                        $layer .= '/'.$image.'.png';
+                        $image .= $image_name.'.png';
                     }
-                    if( is_readable($layer) AND ! is_dir($layer) ){
-                        $layer = imagecreatefrompng($layer);
-                        imagecopy($ribbon, $layer, 0,0, 0,0, 120,97);
-                        imagedestroy($layer);
+                    $height = 32;
+                    if( $group === 'Grand Tour' ){
+                        $height = 96;
+                    }
+                    if( is_readable($image) AND ! is_dir($image) ){
+                        imagecopy( $ribbons[$group], imagecreatefrompng($image), 0,0,0,0, 120, $height );
                     }else{
-                        die('FATAL ERROR: Can\'t read layer image for: '.$group.'/'.$prop.'='.$val);
+                        die('<br/>FATAL ERROR: Can\'t read "'.$image.'" for: '.$group.'/'.$prop.'='.$val);
                     }
                 }
             }
-            if( ! $ribbon ){
-                continue;
-            }
         }
-
+//var_dump($ribbons);
+        
+        $cell_w = 120;
+        $cell_h = 32;
+        $rows = 3;
+        
+        $cell = 1;
+        $dst_x = 0;
+        $dst_y = 0;
+        foreach( static::$planets as $planet => $attribs ){ // By column, then row.
+            // Paint ribbon here.
+            $height = $cell_h;
+            if( $group === 'Grand Tour' ){
+                $height = $cell_h*$rows;
+            }
+            imagecopy($base_image, $ribbons[$planet], $dst_x, $dst_y, 0,0, 120, $height );
+            $dst_y += $cell_h;
+            if( $dst_y >= $cell_h*$rows ){
+                $dst_y = 0;
+                $dst_x += $cell_w;
+            }
+            $cell++;
+        }
+        
         header('Content-Type: image/png');
-        imagepng($ribbon);
-        imagedestroy($ribbon);
+        imagepng($base_image);
         exit();
     }
 
     private function init_database(){
-        if(
-            ! is_writable(static::$db_file)
-            || ! is_writable(dirname(static::$db_file))
-        ){
-            die('FATAL ERROR: The database file or directory doesn\'t exist or isn\'t writeable.');
+        // Robust file check for cheap shared servers.
+        if( !is_writable(static::$db_file) || !is_writable(dirname(static::$db_file)) ){
+            sleep(5);
+            if( !is_writable(static::$db_file) || !is_writable(dirname(static::$db_file)) ){
+                sleep(5);
+                if( !is_writable(static::$db_file) || !is_writable(dirname(static::$db_file)) ){
+                    die('FATAL ERROR: The database file or directory doesn\'t exist or isn\'t writeable.');
+                }
+            }
         }
         if( ! empty( static::$dbcnnx ) ){ return true; }
         try{
@@ -400,8 +442,7 @@ VALUES (:id,:data)
                 ){ continue; }
                 $_SESSION['ribbons'][$key] = $val;
             }
-        }elseif( ! isset($_SESSION['ribbons']) ){
-            // Load ribbons from database.
+        }else{
             $this->load_ribbons();
             if( ! isset($_SESSION['ribbons']) ){
                 
@@ -485,6 +526,27 @@ VALUES (:id,:data)
                     if(!is_readable($image)||is_dir($image)){$image='';}
                     $image = '
             <img class="device '.$this->de_space($planet2).$selected.'" alt="Image:'.$device.'" src="'.$image.'"/>';
+                    $return .= $image;
+                }
+            }
+            
+            foreach( static::$effects as $val ){
+                foreach( $val as $effect ){
+                    $name = $this->de_space($effect);
+                    if( // Check for default or posted value.
+                        (
+                            $effect === @$_SESSION['ribbons']['effects/Texture']
+                            || ! empty( $_SESSION['ribbons']['effects/'.$name] )
+                        )
+                    ){
+                        $selected = ' selected';
+                    }else{ $selected = ''; }
+                    $image = static::$images_root.'/ribbons';
+                    if( $planet === 'Grand Tour' ){ $image .= '/shield'; }
+                    $image .= '/'.$effect.'.png';
+                    if(!is_readable($image)||is_dir($image)){$image='';}
+                    $image = '
+            <img class="effect '.$name.$selected.'" alt="Image:'.$effect.'" src="'.$image.'"/>';
                     $return .= $image;
                 }
             }
@@ -608,27 +670,6 @@ VALUES (:id,:data)
                 }
             }
             
-            foreach( static::$effects as $val ){
-                foreach( $val as $effect ){
-                    $name = $this->de_space($effect);
-                    if( // Check for default or posted value.
-                        (
-                            $effect === @$_SESSION['ribbons']['effects/Texture']
-                            || ! empty( $_SESSION['ribbons']['effects/'.$name] )
-                        )
-                    ){
-                        $selected = ' selected';
-                    }else{ $selected = ''; }
-                    $image = static::$images_root.'/ribbons';
-                    if( $planet === 'Grand Tour' ){ $image .= '/shield'; }
-                    $image .= '/'.$effect.'.png';
-                    if(!is_readable($image)||is_dir($image)){$image='';}
-                    $image = '
-            <img class="effect '.$name.$selected.'" alt="Image:'.$effect.'" src="'.$image.'"/>';
-                    $return .= $image;
-                }
-            }
-            
             // END Ribbon guts.
             
             $return .= '
@@ -649,7 +690,7 @@ VALUES (:id,:data)
         $return = '';
         $submit_message = 'You\'re <em>not</em> logged in. Settings will be lost when you leave.';
         if( static::$user_id !== null ){
-            $submit_message = 'You\'re logged in! Settings will be saved to your account.';
+            $submit_message = '<strong>You\'re logged in!</strong> Settings will be saved to your account.';
         }
         $return .= '
 <div style="clear:both;"></div>
@@ -751,7 +792,7 @@ VALUES (:id,:data)
         <div class="category Achieved">
             <div class="input_box Achieved">
                 <label for="'.$name.'">
-                    Achieved'.$image.'
+                    '.$image.'
                 </label>
                 <input type="checkbox" id="'.$name.'" name="'.$name.'"'.$checked.$disabled.'/>
             </div>';

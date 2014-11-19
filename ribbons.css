@@ -107,6 +107,12 @@
 .ribbons .input_box.Achieved{
     width:122px;
 }
+.ribbons input[name="Asteroid/Achieved"]{
+    display:none;
+}
+.ribbons label[for="Asteroid/Achieved"]{
+    cursor:default;
+}
 .ribbons .effects .category{
     float:left;
 }

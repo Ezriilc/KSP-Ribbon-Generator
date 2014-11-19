@@ -122,7 +122,13 @@ $(document).ready(function(){
                 && target.propText !== 'Asteroid'
                 && ! $(':input[name="'+target.groupText+'/Achieved"]').prop('checked')
             ){
-                alert('You need to choose an asteroid first.');
+                var blinker = $('input[name="Asteroid/Asteroid"]').not('input[id="Asteroid/Asteroid/None"]').parent();
+                var blinkerNone = $('input[id="Asteroid/Asteroid/None"]').parent();
+                i=2;while(i--){
+                    blinker.fadeTo(666,0);
+                    blinker.fadeTo(0,1);
+                }
+                // alert('You need to choose an asteroid first.');
             }else{
                 if(
                     target.propText === 'Equatorial'
