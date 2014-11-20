@@ -171,6 +171,10 @@ class RIBBONS{
         
     }// END of __construct()
     
+    private function my_urlencode($inout){
+        return preg_replace('/\s/','%20',$inout);
+    }
+    
     private function de_space($in_out){
         return preg_replace('/\s+/','_',$in_out);
     }
@@ -672,7 +676,7 @@ VALUES (:id,:data)
             if(!is_readable($image)||is_dir($image)){$image='';}
             if( $planet !== 'Asteroid' ){
                 $image = '
-            <img class="ribbon_image" alt="'.$planet.'" src="'.$image.'"/>';
+            <img class="ribbon_image" alt="'.$planet.'" src="'.$this->my_urlencode($image).'"/>';
             }
             if(
                 ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] )
@@ -705,7 +709,7 @@ VALUES (:id,:data)
                     $image = static::$images_root.'/ribbons/Asteroid - '.$planet2.'.png';
                     if(!is_readable($image)||is_dir($image)){$image='';}
                     $image = '
-            <img class="device '.$this->de_space($planet2).$selected.'" alt="Image:'.$device.'" src="'.$image.'"/>';
+            <img class="device '.$this->de_space($planet2).$selected.'" alt="Image:'.$device.'" src="'.$this->my_urlencode($image).'"/>';
                     $return .= $image;
                 }
             }
@@ -725,7 +729,7 @@ VALUES (:id,:data)
                 $image .= '/'.$effect.'.png';
                 if(!is_readable($image)||is_dir($image)){$image='';}
                 $image = '
-        <img class="effect '.$name.$selected.'" alt="Image:'.$effect.'" src="'.$image.'"/>';
+        <img class="effect '.$name.$selected.'" alt="Image:'.$effect.'" src="'.$this->my_urlencode($image).'"/>';
                 $return .= $image;
             }
             
@@ -768,7 +772,7 @@ VALUES (:id,:data)
                 $image .= '/'.$device.'.png';
                 if(!is_readable($image)||is_dir($image)){$image='';}
                 $image = '
-            <img class="device '.$this->de_space($device).$selected.'" alt="Image:'.$device.'" src="'.$image.'"/>';
+            <img class="device '.$this->de_space($device).$selected.'" alt="Image:'.$device.'" src="'.$this->my_urlencode($image).'"/>';
                 $return .= $image;
             }
             
@@ -788,7 +792,7 @@ VALUES (:id,:data)
                     $image = static::$images_root.'/ribbons/shield/'.$planet2.' Visit.png';
                     if(!is_readable($image)||is_dir($image)){$image='';}
                     $image = '
-            <img class="device '.$this->de_space($planet2).$selected.'" alt="Image:'.$planet2.'" src="'.$image.'"/>';
+            <img class="device '.$this->de_space($planet2).$selected.'" alt="Image:'.$planet2.'" src="'.$this->my_urlencode($image).'"/>';
                     $return .= $image;
                 }
                 
@@ -840,7 +844,7 @@ VALUES (:id,:data)
                             $image = static::$images_root.'/ribbons/shield/'.$OLname.'.png';
                             if(!is_readable($image)||is_dir($image)){$image='';}
                             $image = '
-            <img class="device '.$this->de_space($OLname).$selected.'" alt="Image:'.$OLname.'" src="'.$image.'"/>';
+            <img class="device '.$this->de_space($OLname).$selected.'" alt="Image:'.$OLname.'" src="'.$this->my_urlencode($image).'"/>';
                             $return .= $image;
                         }
                     }
@@ -863,7 +867,7 @@ VALUES (:id,:data)
                 $image .= '/'.$effect.'.png';
                 if(!is_readable($image)||is_dir($image)){$image='';}
                 $image = '
-        <img class="effect '.$name.$selected.'" alt="Image:'.$effect.'" src="'.$image.'"/>';
+        <img class="effect '.$name.$selected.'" alt="Image:'.$effect.'" src="'.$this->my_urlencode($image).'"/>';
                 $return .= $image;
             }
             
@@ -924,7 +928,7 @@ VALUES (:id,:data)
                 
                 if( $type === 'Textures' ){
                     $name = 'effects/Texture';
-                    $id = $name.'/'.$effect;
+                    $id = $this->de_space($name.'/'.$effect);
                     $value = ' value="'.$effect.'"';
                     $input_type = 'radio';
                     if( $effect === @$_SESSION['ribbons'][$name] ){
@@ -948,7 +952,7 @@ VALUES (:id,:data)
                 $image = static::$images_root.'/ribbons/'.$effect.'.png';
                 if(!is_readable($image)||is_dir($image)){$image='';}
                 $image = '
-                    <img alt="Image:'.$effect.'" src="'.$image.'"/>';
+                    <img alt="Image:'.$effect.'" src="'.$this->my_urlencode($image).'"/>';
                 $return .= '
             <div class="input_box">
                 <label for="'.$id.'">
@@ -978,7 +982,7 @@ VALUES (:id,:data)
                 $image = static::$images_root.'/ribbons/icons/'.$planet.'.png';
                 if(!is_readable($image)||is_dir($image)){$image='';}
                 $image = '
-                    <img alt="Image:'.$planet.'" src="'.$image.'"/>';
+                    <img alt="Image:'.$planet.'" src="'.$this->my_urlencode($image).'"/>';
             }else{ $image = ''; }
             $name = $this->de_space($planet.'/Achieved');
             if( ! empty( $_SESSION['ribbons'][$this->de_space($planet.'/Achieved')] ) ){
@@ -1012,7 +1016,7 @@ VALUES (:id,:data)
                     $image = static::$images_root.'/ribbons/Asteroid - '.$planet2.'.png';
                     if(!is_readable($image)||is_dir($image)){$image='';}
                     $image = '
-                    <img alt="Image:'.$planet2.'" src="'.$image.'"/>';
+                    <img alt="Image:'.$planet2.'" src="'.$this->my_urlencode($image).'"/>';
                     if( // Check for default or posted value.
                         $planet2 === @$_SESSION['ribbons'][$this->de_space($planet.'/Asteroid')]
                     ){
@@ -1091,7 +1095,7 @@ VALUES (:id,:data)
                         ){ continue; }
                         if(
                             $planet === 'Grand Tour'
-                            AND ! is_readable( static::$images_root.'/ribbons/shield/'.$device.'.png' )
+                            AND ! in_array( $device, static::$gt_devices )
                         ){ continue; }
                         $input_type = 'checkbox';
                         $name = $this->de_space($planet.'/'.$device);
@@ -1125,7 +1129,7 @@ VALUES (:id,:data)
                         $image = static::$images_root.'/ribbons/icons/'.$device.'.png';
                         if(!is_readable($image)||is_dir($image)){$image='';}
                         $image = '
-                    <img alt="'.$device.'" src="'.$image.'"/>';
+                    <img alt="'.$device.'" src="'.$this->my_urlencode($image).'"/>';
                         $return .= '
             <div class="input_box">
                 <label for="'.$id.'" title="'.$desc.'">
@@ -1153,7 +1157,7 @@ VALUES (:id,:data)
                     $image = static::$images_root.'/ribbons/icons/'.$planet2.'.png';
                     if(!is_readable($image)||is_dir($image)){$image='';}
                     $image = '
-                    <img alt="'.$planet2.'" src="'.$image.'"/>';
+                    <img alt="'.$planet2.'" src="'.$this->my_urlencode($image).'"/>';
                     $name = $this->de_space('Grand Tour/'.$planet2);
                     if( // Check for default or posted value.
                         ! empty( $_SESSION['ribbons'][$name] )
