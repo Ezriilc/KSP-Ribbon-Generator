@@ -22,6 +22,22 @@ $(document).ready(function(){
         myRibbons.keepInView(event);
     });
     
+    $('form.ribbons [name="ribbons_generate"]').click(function(event){
+        event.preventDefault();
+        target = event.target;
+        form = $(event.target.form);
+        newInput = $('<input />');
+        newInput.attr('type', 'hidden')
+            .attr('id', 'ribbons_generate_js')
+            .attr('name', target.name)
+            .attr('value', target.value)
+            .appendTo(form);
+        form.prop('target','_blank');
+        form.submit();
+        $('#ribbons_generate_js').remove();
+        form.prop('target','');
+    });
+    
     myRibbons = new Object();
     
     myRibbons.keepInView = function(event){
@@ -209,7 +225,7 @@ $(document).ready(function(){
                 }
                 target.golds = target.valText - (target.silvers * 5);
                 var thisS, thisG;
-                i=2;while( i <= 39 ){
+                i=2;while( i <= 16 ){
                     thisS = target.devices.filter('.device.'+target.OL+'_'+i+'_Silver');
                     thisG = target.devices.filter('.device.'+target.OL+'_'+i);
                     if( i <= target.silvers+1 ){
