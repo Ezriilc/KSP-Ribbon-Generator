@@ -1,8 +1,5 @@
 <?php
     @session_start();
-    
-$_SESSION['user_id'] = 1;
-    
     $cache_age = 1; // Seconds
     header('Cache-control: must-revalidate', false);
     header('Cache-control: max-age='.$cache_age, false);
@@ -26,9 +23,9 @@ $_SESSION['user_id'] = 1;
     text-align:center;
 ">
     <h2>KSP Ribbon Generator - Testing</h2>
-    <p>Please test everything carefully and report any problems or suggestions.
-    <br/>I'm currently working on the GENERATE function, so no need to report that.</p>
-    <h3><a onclick="window.open(this.href);return false;" title="Contact Us" href="http://www.kerbaltekaerospace.com/?page=contact">Contact Form</a> | <a onclick="window.open(this.href);return false;" title="[WEB APP] KSP Ribbon Generator" href="http://forum.kerbalspaceprogram.com/threads/86422">KSP Forum Thread</a> | <a onclick="window.open(this.href);return false;" title="KSP-Ribbon-Generator on GitHub" href="https://github.com/Ezriilc/KSP-Ribbon-Generator">Source Code</a></h3>
+    <p>It's done! Please test everything carefully and report any problems or suggestions.
+    <br/>If all goes well, I'd like to take down the old one in the next few days.</p>
+    <h3><a onclick="window.open(this.href);return false;" title="Ribbons Rules by Unistrut" href="forum.kerbalspaceprogram.com/threads/25188?p=307673&viewfull=1#post307673">Official Rules</a> | <a onclick="window.open(this.href);return false;" title="Contact Us" href="http://www.kerbaltekaerospace.com/?page=contact">Contact Us</a> | <a onclick="window.open(this.href);return false;" title="[WEB APP] KSP Ribbon Generator" href="http://forum.kerbalspaceprogram.com/threads/86422">KSP Forum Thread</a> | <a onclick="window.open(this.href);return false;" title="KSP-Ribbon-Generator on GitHub" href="https://github.com/Ezriilc/KSP-Ribbon-Generator">Source Code</a></h3>
 <?php
     if(
         isset( RIBBONS::$user_id )
