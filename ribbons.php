@@ -296,6 +296,7 @@ class RIBBONS{
                 foreach( $o_l as $each ){
                     $$each = array('count'=>'','silvers'=>array(),'golds'=>array());
                     $this_array = &$$each;
+                    if( ! isset($data['Grand Tour'][$each.'s']) ){ continue; }
                     $this_array['count'] = 0 + $data['Grand Tour'][$each.'s'];
                     if( $this_array['count'] > 0 ){
                         
@@ -325,6 +326,7 @@ class RIBBONS{
                 $i=1;while($i <= 8){
                     foreach( array('Orbit','Landing') as $each ){
                         $this_array = &$$each;
+                        if( ! isset($data['Grand Tour'][$each.'s']) ){ continue; }
                         $each_count = 0 + $data['Grand Tour'][$each.'s'];
                         foreach( array('',' Silver') as $each2 ){
                             if( $each2 AND $i === 1 ){ continue; }
@@ -378,6 +380,7 @@ class RIBBONS{
         $cell = 1;
         $dst_x = 0;
         $dst_y = 0;
+        $end_w = 0;
         $end_h = 0;
         $is_full = false;
         foreach( static::$planets as $planet => $attribs ){ // By column, then row.
@@ -402,12 +405,13 @@ class RIBBONS{
                 $dst_y = 0;
                 if( $is_full ){
                     $dst_x += $cell_w;
+                    $end_w += $cell_w;
                 }
                 $is_full = false;
             }
             $cell++;
         }
-        $end_w = $dst_x + $cell_w;
+        if( $is_full ){ $end_w += $cell_w; }
         $crop = array(
             'x' => 0
             ,'y' => 0
@@ -427,6 +431,7 @@ imagepng($base_image);
 exit();
         
         $filename = 'KSP-Ribbons.png';
+        
         $filename = preg_replace('/;/i', '_', $filename);
             // No semi-colons inside HTTP headers - it ends the line.
         header( 'Content-Description: File Transfer' );
