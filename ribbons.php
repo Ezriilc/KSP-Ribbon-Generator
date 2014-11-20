@@ -280,6 +280,10 @@ class RIBBONS{
             if( $group === 'Grand Tour' ){
                 foreach( static::$planets as $planet2 => $attribs2 ){
                     if(
+                        ! in_array($planet2, $props)
+                        AND ! array_key_exists($planet2, $props)
+                    ){ continue; }
+                    if(
                         $planet2 === 'Kerbol'
                         || $planet2 === 'Asteroid'
                         || $planet2 === 'Grand Tour'
