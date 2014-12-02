@@ -1,5 +1,5 @@
 .ribbons{
-    width:840px;
+    width:686px;
     margin:0 auto;
 }
 .ribbons *{
@@ -11,15 +11,15 @@
     border:0;outline:0;
 }
 .ribbons .column{
-    width:120px;
+    width:98px;
     float:left;
     text-align:center;
 }
 .ribbons .ribbon{
     position:relative;
     width:100%;
-    height:32px;
-    line-height:32px;
+    height:26px;
+    line-height:26px;
     opacity:0.5;
     cursor:pointer;
 }

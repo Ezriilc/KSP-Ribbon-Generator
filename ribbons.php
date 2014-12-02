@@ -1,5 +1,4 @@
 <?php
-$_SESSION['user_id'] = 1;
 new RIBBONS;
 RIBBONS::$output = '
 <p class="menu" style="text-align:center;">
@@ -15,7 +14,9 @@ class RIBBONS{
     $db_file = './_sqlite/KSP-Ribbons_TESTING.sqlite3'
 // To start new db and tables, create an empty text file with this pathname.
     ,$ribbons_table = 'ribbons_TESTING'
-    ,$images_root = './KSP_images'
+    ,$images_root = 'KSP_images/resized'
+    ,$ribbon_width = 98
+    ,$ribbon_height = 26
     ,$output = null
     ,$dbcnnx = null
     ,$planets = null // ALL SOI bodies are called "planets" here.
@@ -416,7 +417,7 @@ VALUES (:id,:data)
         // VERY rough.  I'm a total noob at imaging in PHP.
         
         
-        $base_image = imagecreatetruecolor( 840, 96 );
+        $base_image = imagecreatetruecolor( (7 * static::$ribbon_width), (3 * static::$ribbon_height) );
         imagesavealpha($base_image, true);
         $bg = imagecolorallocatealpha($base_image, 0,0,255, 127);
         imagefill($base_image, 0,0, $bg);
@@ -434,7 +435,7 @@ VALUES (:id,:data)
             }else{
                 $image_name = $group;
             }
-            $image = static::$images_root.'/ribbons/'.$image_name.'.png';
+            $image = static::$images_root.'/'.$image_name.'.png';
             if( ! is_readable($image) ){ sleep(5); }
             if( is_readable($image) AND ! is_dir($image) ){
                 $ribbons[$group] = imagecreatefrompng($image);
@@ -452,16 +453,16 @@ VALUES (:id,:data)
                     )
                 ){ continue; }
                 $name = $this->de_space($effect);
-                $image = static::$images_root.'/ribbons';
+                $image = static::$images_root;
                 if( $group === 'Grand Tour' ){ $image .= '/shield'; }
                 $image .= '/'.$effect.'.png';
-                $height = 32;
+                $height = static::$ribbon_height;
                 if( $group === 'Grand Tour' ){
-                    $height = 96;
+                    $height = (3 * static::$ribbon_height);
                 }
                 if( ! is_readable($image) ){ sleep(5); }
                 if( is_readable($image) AND ! is_dir($image) ){
-                    imagecopy( $ribbons[$group], imagecreatefrompng($image), 0,0,0,0, 120, $height );
+                    imagecopy( $ribbons[$group], imagecreatefrompng($image), 0,0,0,0, static::$ribbon_width, $height );
                 }else{
                     die('<br/>FATAL ERROR: Can\'t read "'.$image.'" for: '.$group.'/'.$prop.'='.$val);
                 }
@@ -477,16 +478,16 @@ VALUES (:id,:data)
                     AND ! array_key_exists($device, $props)
                 ){ continue; }
                 
-                $image = static::$images_root.'/ribbons';
+                $image = static::$images_root;
                 if( $group === 'Grand Tour' ){ $image .= '/shield'; }
                 $image .= '/'.$device.'.png';
-                $height = 32;
+                $height = static::$ribbon_height;
                 if( $group === 'Grand Tour' ){
-                    $height = 96;
+                    $height = (3 * static::$ribbon_height);
                 }
                 if( ! is_readable($image) ){ sleep(5); }
                 if( is_readable($image) AND ! is_dir($image) ){
-                    imagecopy( $ribbons[$group], imagecreatefrompng($image), 0,0,0,0, 120, $height );
+                    imagecopy( $ribbons[$group], imagecreatefrompng($image), 0,0,0,0, static::$ribbon_width, $height );
                 }else{
                     die('<br/>FATAL ERROR: Can\'t read "'.$image.'" for: '.$group.'/'.$prop.'='.$val);
                 }
@@ -503,10 +504,10 @@ VALUES (:id,:data)
                         || $planet2 === 'Asteroid'
                         || $planet2 === 'Grand Tour'
                     ){ continue; }
-                    $image = static::$images_root.'/ribbons/shield/'.$planet2.' Visit.png';
+                    $image = static::$images_root.'/shield/'.$planet2.' Visit.png';
                     if( ! is_readable($image) ){ sleep(5); }
                     if( is_readable($image) AND ! is_dir($image) ){
-                        imagecopy( $ribbons[$group], imagecreatefrompng($image), 0,0,0,0, 120, 96 );
+                        imagecopy( $ribbons[$group], imagecreatefrompng($image), 0,0,0,0, static::$ribbon_width, (3 * static::$ribbon_height) );
                     }else{
                         die('<br/>FATAL ERROR: Can\'t read "'.$image.'" for: '.$group.'/'.$prop.'='.$val);
                     }
@@ -556,10 +557,10 @@ VALUES (:id,:data)
                             
                             if( ! in_array( $i, $this_array[$each_rl] ) ){ continue; }
                             
-                            $image = static::$images_root.'/ribbons/shield/'.$OLname.'.png';
+                            $image = static::$images_root.'/shield/'.$OLname.'.png';
                             if( ! is_readable($image) ){ sleep(5); }
                             if( is_readable($image) AND ! is_dir($image) ){
-                                imagecopy( $ribbons[$group], imagecreatefrompng($image), 0,0,0,0, 120, 96 );
+                                imagecopy( $ribbons[$group], imagecreatefrompng($image), 0,0,0,0, static::$ribbon_width, (3 * static::$ribbon_height) );
                             }else{
                                 die('<br/>FATAL ERROR: Can\'t read "'.$image.'" for: '.$group.'/'.$prop.'='.$val);
                             }
@@ -579,16 +580,16 @@ VALUES (:id,:data)
                     )
                 ){ continue; }
                 $name = $this->de_space($effect);
-                $image = static::$images_root.'/ribbons';
+                $image = static::$images_root;
                 if( $group === 'Grand Tour' ){ $image .= '/shield'; }
                 $image .= '/'.$effect.'.png';
-                $height = 32;
+                $height = static::$ribbon_height;
                 if( $group === 'Grand Tour' ){
-                    $height = 96;
+                    $height = (3 * static::$ribbon_height);
                 }
                 if( ! is_readable($image) ){ sleep(5); }
                 if( is_readable($image) AND ! is_dir($image) ){
-                    imagecopy( $ribbons[$group], imagecreatefrompng($image), 0,0,0,0, 120, $height );
+                    imagecopy( $ribbons[$group], imagecreatefrompng($image), 0,0,0,0, static::$ribbon_width, $height );
                 }else{
                     die('<br/>FATAL ERROR: Can\'t read "'.$image.'" for: '.$group.'/'.$prop.'='.$val);
                 }
@@ -596,8 +597,8 @@ VALUES (:id,:data)
             
         }
         
-        $cell_w = 120;
-        $cell_h = 32;
+        $cell_w = static::$ribbon_width;
+        $cell_h = static::$ribbon_height;
         
         $cell = 1;
         $dst_x = 0;
@@ -613,7 +614,7 @@ VALUES (:id,:data)
                 $height = $cell_h * 3;
             }
             if( $is_on ){
-                imagecopy($base_image, $ribbons[$planet], $dst_x, $dst_y, 0,0, 120, $height );
+                imagecopy($base_image, $ribbons[$planet], $dst_x, $dst_y, 0,0, static::$ribbon_width, $height );
                 $dst_y += $cell_h;
                 $occupied = true;
                 if( $height > $end_h ){
@@ -634,18 +635,18 @@ VALUES (:id,:data)
             $cell++;
         }
         if( $occupied ){ $end_w += $cell_w; }
-        $crop = array(
-            'x' => 0
-            ,'y' => 0
-            ,'width' => $end_w
-            ,'height' => $end_h
-        );
-        $cropped = imagecreatetruecolor( $end_w, $end_h );
-        imagesavealpha($cropped, true);
-        $bg = imagecolorallocatealpha($cropped, 0,0,255, 127);
-        imagefill($cropped, 0,0, $bg);
-        imagecopy( $cropped, $base_image, 0,0, 0,0, $end_w, $end_h );
-        $base_image = $cropped;
+        
+        $resize_factor = 1;
+        $end_w_s = $end_w * $resize_factor;
+        $end_h_s = $end_h * $resize_factor;
+        
+        // Crop and resize.
+        $fixed_image = imagecreatetruecolor( $end_w_s, $end_h_s );
+        imagesavealpha($fixed_image, true);
+        $bg = imagecolorallocatealpha($fixed_image, 0,0,255, 127);
+        imagefill($fixed_image, 0,0, $bg);
+        imagecopyresampled( $fixed_image, $base_image, 0,0, 0,0, $end_w_s, $end_h_s, $end_w, $end_h );
+        $base_image = $fixed_image;
         
 // Display image.  For testing.
 header('Content-Type: image/png'); imagepng($base_image); exit();
@@ -683,10 +684,10 @@ header('Content-Type: image/png'); imagepng($base_image); exit();
                 $return .= '
     <div class="column">';
             }
-            $image = static::$images_root.'/ribbons/'.$planet.'.png';
+            $image = static::$images_root.'/'.$planet.'.png';
             if( $planet === 'Grand Tour' ){
-                $image = static::$images_root.'/ribbons/shield/Base Colours.png';
-                $height = 'height:96px;line-height:96px;';
+                $image = static::$images_root.'/shield/Base Colours.png';
+                $height = 'height:'.(3*static::$ribbon_height).'px;line-height:'.(3*static::$ribbon_height).'px;';
             }else{ $height = ''; }
             if( $planet !== 'Asteroid' ){
                 $image = '
@@ -720,7 +721,7 @@ header('Content-Type: image/png'); imagepng($base_image); exit();
                     ){
                         $selected = ' selected';
                     }else{ $selected = ''; }
-                    $image = static::$images_root.'/ribbons/Asteroid - '.$planet2.'.png';
+                    $image = static::$images_root.'/Asteroid - '.$planet2.'.png';
                     $image = '
             <img class="device '.$this->de_space($planet2).$selected.'" alt="Image:'.$device.'" src="'.$this->my_urlencode($image).'"/>';
                     $return .= $image;
@@ -737,7 +738,7 @@ header('Content-Type: image/png'); imagepng($base_image); exit();
                 ){
                     $selected = ' selected';
                 }else{ $selected = ''; }
-                $image = static::$images_root.'/ribbons';
+                $image = static::$images_root;
                 if( $planet === 'Grand Tour' ){ $image .= '/shield'; }
                 $image .= '/'.$effect.'.png';
                 $image = '
@@ -779,7 +780,7 @@ header('Content-Type: image/png'); imagepng($base_image); exit();
                 ){
                     $selected = ' selected';
                 }else{ $selected = ''; }
-                $image = static::$images_root.'/ribbons';
+                $image = static::$images_root;
                 if( $planet === 'Grand Tour' ){ $image .= '/shield'; }
                 $image .= '/'.$device.'.png';
                 $image = '
@@ -800,7 +801,7 @@ header('Content-Type: image/png'); imagepng($base_image); exit();
                     ){
                         $selected = ' selected';
                     }else{ $selected = ''; }
-                    $image = static::$images_root.'/ribbons/shield/'.$planet2.' Visit.png';
+                    $image = static::$images_root.'/shield/'.$planet2.' Visit.png';
                     $image = '
             <img class="device '.$this->de_space($planet2).$selected.'" alt="Image:'.$planet2.'" src="'.$this->my_urlencode($image).'"/>';
                     $return .= $image;
@@ -851,7 +852,7 @@ header('Content-Type: image/png'); imagepng($base_image); exit();
                             ){
                                 $selected = ' selected';
                             }else{ $selected = ''; }
-                            $image = static::$images_root.'/ribbons/shield/'.$OLname.'.png';
+                            $image = static::$images_root.'/shield/'.$OLname.'.png';
                             $image = '
             <img class="device '.$this->de_space($OLname).$selected.'" alt="Image:'.$OLname.'" src="'.$this->my_urlencode($image).'"/>';
                             $return .= $image;
@@ -871,7 +872,7 @@ header('Content-Type: image/png'); imagepng($base_image); exit();
                 ){
                     $selected = ' selected';
                 }else{ $selected = ''; }
-                $image = static::$images_root.'/ribbons';
+                $image = static::$images_root;
                 if( $planet === 'Grand Tour' ){ $image .= '/shield'; }
                 $image .= '/'.$effect.'.png';
                 $image = '
@@ -958,7 +959,7 @@ header('Content-Type: image/png'); imagepng($base_image); exit();
                     $checked = ' checked="checked"';
                 }
                 
-                $image = static::$images_root.'/ribbons/'.$effect.'.png';
+                $image = static::$images_root.'/'.$effect.'.png';
                 $image = '
                     <img alt="Image:'.$effect.'" src="'.$this->my_urlencode($image).'"/>';
                 $return .= '
@@ -987,7 +988,7 @@ header('Content-Type: image/png'); imagepng($base_image); exit();
             // BEGIN Planet guts.
             
             if( $planet !== 'Grand Tour' ){
-                $image = static::$images_root.'/ribbons/icons/'.$planet.'.png';
+                $image = static::$images_root.'/icons/'.$planet.'.png';
                 $image = '
                     <img alt="Image:'.$planet.'" src="'.$this->my_urlencode($image).'"/>';
             }else{ $image = ''; }
@@ -1020,7 +1021,7 @@ header('Content-Type: image/png'); imagepng($base_image); exit();
                         empty( $attribs2['Asteroid'] )
                         || $planet2 === 'Asteroid'
                     ){ continue; }
-                    $image = static::$images_root.'/ribbons/Asteroid - '.$planet2.'.png';
+                    $image = static::$images_root.'/Asteroid - '.$planet2.'.png';
                     $image = '
                     <img alt="Image:'.$planet2.'" src="'.$this->my_urlencode($image).'"/>';
                     if( // Check for default or posted value.
@@ -1132,7 +1133,7 @@ header('Content-Type: image/png'); imagepng($base_image); exit();
                             $checked = ' checked="checked"';
                         }
                         
-                        $image = static::$images_root.'/ribbons/icons/'.$device.'.png';
+                        $image = static::$images_root.'/icons/'.$device.'.png';
                         $image = '
                     <img alt="'.$device.'" src="'.$this->my_urlencode($image).'"/>';
                         $return .= '
@@ -1159,7 +1160,7 @@ header('Content-Type: image/png'); imagepng($base_image); exit();
                         || $planet2 === 'Kerbol'
                         || $planet2 === 'Asteroid'
                     ){ continue; }
-                    $image = static::$images_root.'/ribbons/icons/'.$planet2.'.png';
+                    $image = static::$images_root.'/icons/'.$planet2.'.png';
                     $image = '
                     <img alt="'.$planet2.'" src="'.$this->my_urlencode($image).'"/>';
                     $name = $this->de_space('Grand Tour/'.$planet2);
