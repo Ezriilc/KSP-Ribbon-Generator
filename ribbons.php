@@ -649,7 +649,7 @@ VALUES (:id,:data)
         $base_image = $fixed_image;
         
 // Display image.  For testing.
-header('Content-Type: image/png'); imagepng($base_image); exit();
+//header('Content-Type: image/png'); imagepng($base_image); exit();
         
         // Serve download.
         $filename = 'KSP-Ribbons.png';
