@@ -14,7 +14,7 @@ class RIBBONS{
     $db_file = './_sqlite/KSP-Ribbons_TESTING.sqlite3'
 // To start new db and tables, create an empty text file with this pathname.
     ,$ribbons_table = 'ribbons_TESTING'
-    ,$images_root = 'KSP_images/resized'
+    ,$images_root = 'KSP_images/ribbons'
     ,$ribbon_width = 98
     ,$ribbon_height = 26
     ,$output = null
