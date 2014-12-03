@@ -890,7 +890,7 @@ VALUES (:id,:data)
             }
         }
         $return .= '
-    <div style=clear:both;"></div>
+    <div style="clear:both;"></div>
 </div>
 <div style="clear:both;"></div>
 ';
