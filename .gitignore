@@ -1,6 +1,9 @@
 # Custom stuff
 _*
-jquery*.js
+.ht*
+index*
+jquery*
+*.zip
 
 # Windows image file caches
 Thumbs.db
