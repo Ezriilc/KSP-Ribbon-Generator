@@ -1,19 +1,76 @@
 <?php
 new RIBBONS;
-RIBBONS::$output = '
-<p class="menu" style="text-align:center;">
-    <a title="KSP Ribbons Rules by Unistrut" href="http://forum.kerbalspaceprogram.com/threads/25188?p=307673&amp;viewfull=1#post307673">Official Rules</a>
-    | <a title="[WEB APP] KSP Ribbon Generator" href="http://forum.kerbalspaceprogram.com/threads/86422">KSP Forum Thread</a>
-    | <a title="KSP-Ribbon-Generator on GitHub" href="https://github.com/Ezriilc/KSP-Ribbon-Generator">Source Code</a>
-</p>
-'.RIBBONS::$output;
-return RIBBONS::$output;
+
+$return = '';
+$return1 = '';
+if(
+    ! empty($_SESSION['logged_in'])
+    AND ! empty($_SESSION['user']['username'])
+){
+    $username = $_SESSION['user']['username'];
+    if( is_readable('./users/'.$username.'/ribbons.png') ){
+        $return1 .= '
+<p>Here\'s your BBC code: (copy to your signature)<br/>
+<span class="click_to_select">[URL="http://'.$_SERVER['HTTP_HOST'].'/ribbons"][IMG]http://'.$_SERVER['HTTP_HOST'].'/users/'.$username.'/ribbons.png[/IMG][/URL]</span></p>
+<p>This is in BETA testing, and may change.</p>
+<hr/>';
+    }else{
+        $return1 .= '
+<p>Click Generate to create your ribbons image, then refresh this page to show some code you can copy to your signature.</p>
+<hr/>';
+    }
+    if(
+        class_exists('USER')
+        AND $users = USER::get_users()
+        AND $ribbons = RIBBONS::load_all()
+    ){
+        $ribbons = array_reverse($ribbons);
+        $return .= '
+<ul class="ribbons_list">';
+        $ribbon_hits = 0;
+        $ribbon_count = 0;
+        foreach( $ribbons as $ribbon ){
+            $each_username = $users[$ribbon['id']]['username'];
+            if( $each_username === 'TestTickle' ){ continue; }
+            $image_name = $each_username.'/ribbons.png';
+            $image_pathname = './users/'.$image_name;
+            if( is_readable($image_pathname) ){
+                $ribbon_count++;
+                $return .= '
+    <li class="stretchy">
+        <span style="display:inline-block;float:left;"><span class="username">'.$each_username.'</span>';
+                if(
+                    class_exists('DOWNLOADER')
+                ){
+                    $image_info = DOWNLOADER::get_info($image_pathname);
+                    $ribbon_hits += $image_info['count'];
+                    $count = ' <small>hits: '.number_format($image_info['count']).'</small>';
+                }else{
+                    $count = '';
+                }
+                $return .= $count.'</span>
+        <img alt="'.$image_name.'" src="'.$image_pathname.'"/>';
+                $return .= '
+    </li>';
+            }
+        }
+        $return .= '
+</ul>
+';
+    }
+}
+
+return $return1.RIBBONS::$output.'
+<h3>Ribbon Stats</h3>
+<p>Kerbaltek members have a total of '.number_format($ribbon_count).' ribbon sets.</p>
+<p>Kerbaltek ribbons have been seen a total of '.number_format($ribbon_hits).' times.</p>
+Member ribbons: (newest member first)<br/>'.$return;
 
 class RIBBONS{
     static
-    $db_file = './_sqlite/KSP-Ribbons_TESTING.sqlite3'
+    $db_file = './_sqlite/Kerbaltek.sqlite3'
 // To start new db and tables, create an empty text file with this pathname.
-    ,$ribbons_table = 'ribbons_TESTING'
+    ,$ribbons_table = 'ribbons'
     ,$images_root = 'KSP_images/ribbons'
     ,$ribbon_width = 98
     ,$ribbon_height = 26
@@ -175,12 +232,31 @@ class RIBBONS{
         
         $this->get_input();
         $this->generate_image();
-//        $this->init_database(); // Here for testing, not needed unless save/load fires.
+//        static::init_database(); // Here for testing, not needed unless save/load fires.
         
-        static::$output .= $this->get_ribbons();
+        static::$output .= $this->get_preview();
         static::$output .= $this->get_form();
         
     }// END of __construct()
+    
+    static public function load_all(){
+        if( ! static::init_database() ){ return; }
+        if(
+            $stmt = static::$dbcnnx->prepare("
+SELECT * FROM ".static::$ribbons_table."
+")
+            AND $stmt->execute()
+            AND $results = $stmt->fetchAll(PDO::FETCH_ASSOC)
+        ){
+            $ribbons = array();
+            foreach( $results as $row ){
+                if( ! $row['id'] ){ continue; }
+                $ribbons[$row['id']] = $row;
+            }
+            ksort($ribbons);
+            return $ribbons;
+        }
+    }
     
     private function my_urlencode($inout){
         return preg_replace('/\s/','%20',$inout);
@@ -239,7 +315,7 @@ class RIBBONS{
         }
     }
     
-    private function init_database(){
+    static private function init_database(){
         // Robust file check for sleepy servers.
         if( !is_writable(static::$db_file) || !is_writable(dirname(static::$db_file)) ){
             sleep(5);
@@ -292,7 +368,7 @@ VALUES (0,'Admin/DefaultData')
 
     private function load_ribbons(){
         if( static::$user_id === null ){ return false; }
-        $this->init_database();
+        static::init_database();
         if(
             $stmt = static::$dbcnnx->prepare("
 SELECT data FROM ".static::$ribbons_table."
@@ -328,7 +404,7 @@ LIMIT 1
             $id === null
             OR ! isset($_SESSION['ribbons'])
         ){ return false; }
-        $this->init_database();
+        static::init_database();
         $data = '';
         $i = count($_SESSION['ribbons']);
         foreach( $_SESSION['ribbons'] as $key => $val ){
@@ -648,6 +724,30 @@ VALUES (:id,:data)
         imagecopyresampled( $fixed_image, $base_image, 0,0, 0,0, $end_w_s, $end_h_s, $end_w, $end_h );
         $base_image = $fixed_image;
         
+        // Save static image.
+        if(
+            ! empty($_SESSION['logged_in'])
+            AND ! empty($_SESSION['user']['username'])
+        ){
+            $username = $_SESSION['user']['username'];
+            $dir = './users/'.$username;
+            if( ! is_writable($dir) ){
+                sleep(5);
+                if( ! is_writable($dir) ){
+                    sleep(5);
+                    if( ! is_writable($dir) ){
+                        mkdir($dir);
+                    }
+                }
+            }
+            $image_file = $dir.'/ribbons.png';
+            if( ! imagepng($base_image, $image_file) ){
+                die('Failed to save image to file.');
+            }
+        }
+        
+        
+        
 // Display image.  For testing.
 //header('Content-Type: image/png'); imagepng($base_image); exit();
         
@@ -668,7 +768,7 @@ VALUES (:id,:data)
         exit;
     }
 
-    private function get_ribbons(){
+    private function get_preview(){
         $return = '';
         $return .= '
 <div style="clear:both;"></div>
@@ -1053,7 +1153,7 @@ VALUES (:id,:data)
                     while(
                         $i <= 16
                         &&(
-                            $i <= 15
+                            $i <= 14
                             OR $each !== 'Landings'
                         )
                     ){

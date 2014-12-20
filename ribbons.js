@@ -4,7 +4,7 @@ $(document).ready(function(){
     $('.ribbons input[type="reset"]').prop('disabled',true);
     $('.ribbons .planet').fadeOut(0);
 //    $('.ribbons .submit').fadeOut(0);
-    
+
     $('.ribbons .ribbon').click(function(event){
         var planetText = this.className.replace(/.*ribbon ([^\s]*).*/i,'$1');
         $('.ribbons .planet').not('.'+planetText).fadeOut(0);
@@ -46,6 +46,7 @@ $(document).ready(function(){
         if( ! floater.length ){
             floater = ribbons.clone(true);
             floater.prop('id','ribbons_output_floater');
+            floater.css('font-family',ribbons.css('font-family'));
             floater.css('display','none');
             floater.css('background-color','white');
             floater.css('position','fixed');

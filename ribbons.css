@@ -1,3 +1,18 @@
+.click_to_select{
+    display:inline-block;
+    border:1px dotted black;
+    font-family:Tahoma;
+    font-weight:bold;
+}
+.ribbons_list li{
+    border-width:1px;
+    border-style:dashed;
+}
+.ribbons_list .username{
+    font-size:133%;
+    font-family:times-new-roman;
+    font-weight:bold;
+}
 .ribbons{
     width:686px;
     margin:0 auto;
