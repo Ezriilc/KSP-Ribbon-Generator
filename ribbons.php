@@ -1010,11 +1010,12 @@ VALUES (:id,:data)
         '.$submit_message.'
         <input type="hidden" name="ribbons_submit" value="default"/>';
 //        $return .= '\r\n        <input title="Save these ribbons." type="submit" name="ribbons_save" value="Save"/>';
+        $butt_text = empty($_SESSION['logged_in']) ? 'Generate' : 'Save &amp; Generate';
         $return .= '
         &nbsp;&nbsp;
-        <input class="generate" title="Save and generate a downloadable image." type="submit" name="ribbons_generate" value="Generate"/>
+        <small><input class="generate" title="Save and generate a downloadable image." type="submit" name="ribbons_generate" value="'.$butt_text.'"/></small>
         &nbsp;&nbsp;
-        <input title="Revert to your last save." type="reset" value="Cancel"/>
+        <small><input title="Revert to your last save." type="reset" value="Cancel"/></small>
         <hr/>
     </div>
     ';
