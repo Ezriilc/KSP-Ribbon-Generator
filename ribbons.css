@@ -7,12 +7,22 @@
 .ribbons_list li{
     border-width:1px;
     border-style:dashed;
+    padding:0;
+    padding-left:.25em;
+}
+.ribbons_list li info{
+    display:block;
+    float:left;
 }
 .ribbons_list .username{
     font-size:133%;
     font-family:times-new-roman;
     font-weight:bold;
 }
+.ribbons_list li img{
+    float:right;
+}
+
 .ribbons{
     width:686px;
     margin:0 auto;

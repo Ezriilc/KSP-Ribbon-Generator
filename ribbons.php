@@ -3,6 +3,34 @@ new RIBBONS;
 
 $return = '';
 $return1 = '';
+$ribbons = array_reverse(RIBBONS::load_all());
+$ribbons_count = 0;
+$ribbons_hits = 0;
+if(
+    class_exists('USER')
+    AND $users = USER::get_users()
+){
+    foreach( $ribbons as $key => $ribbon ){
+        $ribbon['username'] = $users[$ribbon['id']]['username'];
+        $image_name = $ribbon['username'].'/ribbons.png';
+        $image_pathname = './users/'.$image_name;
+        if( is_readable($image_pathname) ){
+            $ribbons_count++;
+            $ribbon['image'] = $image_pathname;
+            if(
+                class_exists('DOWNLOADER')
+            ){
+                $image_info = DOWNLOADER::get_info($image_pathname);
+                $ribbon['hits'] = $image_info['count'];
+                $ribbons_hits += $image_info['count'];
+            }
+        }
+        $ribbons[$key] = $ribbon;
+    }
+}
+$return1 .= '
+<p>Kerbaltek members have generated <strong>'.number_format($ribbons_count).'</strong> ribbon sets, and they\'ve been seen a total of <strong>'.number_format($ribbons_hits).'</strong> times.</p>
+<hr/>';
 if(
     ! empty($_SESSION['logged_in'])
     AND ! empty($_SESSION['user']['username'])
@@ -12,45 +40,31 @@ if(
         $return1 .= '
 <p>Here\'s your BBC code: (copy to your signature)<br/>
 <span class="click_to_select">[URL="http://'.$_SERVER['HTTP_HOST'].'/ribbons"][IMG]http://'.$_SERVER['HTTP_HOST'].'/users/'.$username.'/ribbons.png[/IMG][/URL]</span></p>
-<p>This is in BETA testing, and may change.</p>
-<hr/>';
+<p>This is in BETA testing, and may change.</p>';
     }else{
         $return1 .= '
-<p>Click Generate to create your ribbons image, then refresh this page to show some code you can copy to your signature.</p>
-<hr/>';
+<p>Click Generate to create your ribbon set, then refresh this page to show some code you can copy to your signature.</p>';
     }
-    if(
-        class_exists('USER')
-        AND $users = USER::get_users()
-        AND $ribbons = RIBBONS::load_all()
-    ){
-        $ribbons = array_reverse($ribbons);
+    if( $users ){
         $return .= '
+<hr/>
+Members\' ribbons: (newest member first)<br/>
 <ul class="ribbons_list">';
-        $ribbon_hits = 0;
-        $ribbon_count = 0;
         foreach( $ribbons as $ribbon ){
-            $each_username = $users[$ribbon['id']]['username'];
-            if( $each_username === 'TestTickle' ){ continue; }
-            $image_name = $each_username.'/ribbons.png';
-            $image_pathname = './users/'.$image_name;
-            if( is_readable($image_pathname) ){
-                $ribbon_count++;
+            if( $ribbon['username'] === 'TestTickle' ){ continue; }
+            if( ! empty($ribbon['image']) ){
                 $return .= '
     <li class="stretchy">
-        <span style="display:inline-block;float:left;"><span class="username">'.$each_username.'</span>';
-                if(
-                    class_exists('DOWNLOADER')
-                ){
-                    $image_info = DOWNLOADER::get_info($image_pathname);
-                    $ribbon_hits += $image_info['count'];
-                    $count = ' <small>hits: '.number_format($image_info['count']).'</small>';
-                }else{
-                    $count = '';
+        <span class="info">
+            <span class="username">'.$ribbon['username'].'</span>';
+                if( ! empty($ribbon['hits']) ){
+                    $return .= '
+            <small>(<strong>'.number_format($ribbon['hits'] ).'</strong> hits)</small>';
                 }
-                $return .= $count.'</span>
-        <img alt="'.$image_name.'" src="'.$image_pathname.'"/>';
                 $return .= '
+        </span>
+        <img alt="'.$ribbon['username'].' ribbon set" src="'.$ribbon['image'].'"/>
+        <div style="clear:both;"></div>
     </li>';
             }
         }
@@ -60,11 +74,7 @@ if(
     }
 }
 
-return $return1.RIBBONS::$output.'
-<h3>Ribbon Stats</h3>
-<p>Kerbaltek members have a total of '.number_format($ribbon_count).' ribbon sets.</p>
-<p>Kerbaltek ribbons have been seen a total of '.number_format($ribbon_hits).' times.</p>
-Member ribbons: (newest member first)<br/>'.$return;
+return $return1.RIBBONS::$output.$return;
 
 class RIBBONS{
     static
@@ -772,6 +782,7 @@ VALUES (:id,:data)
         $return = '';
         $return .= '
 <div style="clear:both;"></div>
+<div style="text-align:center;"><small>Click each ribbon to select your awards.</small></div>
 <div id="ribbons_output" class="ribbons">';
         $ri=0;
         foreach( static::$planets as $planet => $attribs ){
