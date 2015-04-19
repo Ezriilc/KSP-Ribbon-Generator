@@ -10,7 +10,7 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <title>KSP Ribbon Generator - TESTING</title>
+    <title>KSP Ribbon Generator - Offline Index</title>
     <link rel="stylesheet" type="text/css" href="ribbons.css"/>
     <script type="text/javascript" src="jquery-2.1.1.js"></script>
     <script type="text/javascript" src="ribbons.js"></script>
@@ -21,24 +21,8 @@
     margin:auto;
     text-align:center;
 ">
-    <h2>KSP Ribbon Generator - Testing</h2>
-    <p>It's done! Please test everything carefully and report any problems or suggestions.
-    <br/>If all goes well, I'd like to take down the old one in the next few days.</p>
-    <h3><a onclick="window.open(this.href);return false;" title="Contact Us" href="http://www.kerbaltekaerospace.com/?page=contact">Contact Us</a></h3>
-<?php
-    if(
-        isset( RIBBONS::$user_id )
-        AND RIBBONS::$user_id !== null
-    ){
-?>
-    <h3 style="background-color:green;color:white;">You're logged in!</h3>
-<?php }else{ ?>
-    <p>You don't need to be logged in, but your <a title="Login" href="http://ribbons.kerbaltek.com/">normal login</a> should work here.<br/>Just come back and refresh this page after logging in.</p>
-<?php } ?>
-    <p>Don't worry, your ribbons in the old generator are safe - they won't be affected by this test page.</p>
-<?php echo RIBBONS::$output; ?>
-    <a onclick="window.open(this.href);return false;" title="Validate HTML" href= "http://validator.w3.org/check?uri=<?php echo rawurlencode( 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] ); ?>">HTML5</a>, 
-    <a onclick="window.open(this.href);return false;" title="Validate CSS" href= "http://jigsaw.w3.org/css-validator/validator?uri=<?php echo rawurlencode( 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] ); ?>">CSS3</a>, & JavaScript
+    <h2>KSP Ribbon Generator - Offline Index</h2>
+    <?php echo RIBBONS::$output; ?>
 </div>
 </body>
 </html>
