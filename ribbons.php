@@ -29,6 +29,8 @@ if(
     }
 }
 $return1 .= '
+<p>The KSP Ribbons were created by Unistrut, and are used here with special permission.</p>
+<p>You can use this generator to build your personal ribbon set, or download the raw images if you prefer to use an image editor like GIMP.</p>
 <p>Kerbaltek members have generated <strong>'.number_format($ribbons_count).'</strong> ribbon sets, and they\'ve been seen a total of <strong>'.number_format($ribbons_hits).'</strong> times.</p>
 <hr/>';
 if(
@@ -38,9 +40,8 @@ if(
     $username = $_SESSION['user']['username'];
     if( is_readable('./users/'.$username.'/ribbons.png') ){
         $return1 .= '
-<p>Here\'s your BBC code: (copy to your signature)<br/>
-<span class="click_to_select">[URL="http://'.$_SERVER['HTTP_HOST'].'/ribbons"][IMG]http://'.$_SERVER['HTTP_HOST'].'/users/'.$username.'/ribbons.png[/IMG][/URL]</span></p>
-<p>This is in BETA testing, and may change.</p>';
+<p>Here\'s your BBC code: (copy to your signature) Note: This is in BETA testing, and may change in the future.<br/>
+<span class="click_to_select">[URL="http://'.$_SERVER['HTTP_HOST'].'/ribbons"][IMG]http://'.$_SERVER['HTTP_HOST'].'/users/'.$username.'/ribbons.png[/IMG][/URL]</span></p>';
     }else{
         $return1 .= '
 <p>Click Generate to create your ribbon set, then refresh this page to show some code you can copy to your signature.</p>';
@@ -110,7 +111,7 @@ class RIBBONS{
             
             ,'Duna'         =>'1111001'
             ,'Ike'          =>'1011010'
-            ,'Vall'         =>'1010000'
+            ,'Vall'         =>'1011000'
             
             ,'Jool'         =>'0110001'
             ,'Laythe'       =>'1110000'
