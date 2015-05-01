@@ -4,7 +4,7 @@
     header('Cache-control: must-revalidate', false);
     header('Cache-control: max-age='.$cache_age, false);
     header( 'Expires: '.date( 'r', time() + $cache_age ) );
-    include('ribbons.php');
+    $ribbons = include('ribbons.php');
 ?>
 <!doctype html>
 <html>
@@ -22,7 +22,7 @@
     text-align:center;
 ">
     <h2>KSP Ribbon Generator - Offline Index</h2>
-    <?php echo RIBBONS::$output; ?>
+    <?php echo $ribbons; ?>
 </div>
 </body>
 </html>
