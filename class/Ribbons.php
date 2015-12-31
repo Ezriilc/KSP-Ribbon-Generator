@@ -3,28 +3,34 @@
 /**
  * Ribbons Class
  *
- * The KSP Ribbon Generator was created by Erickson Swift in August of 2014, based on
+ * The KSP Ribbon Generator was created by Ezriilc Swifthawk in August of 2014, based on
  * an original design by Moustachauve.
- * All rights reserved.  Do not use, publish, duplicate or extend any of this code
- * without expressed, written permission.
- */
+ * Anyone is free to use and/or modify this code, with proper credit given as above.
+ *
+ **/
 
 class Ribbons {
     static
-    $db_file = './_sqlite/Kerbaltek.sqlite3'
-// To start new db and tables, create an empty text file with this pathname.
-    ,$ribbons_table = 'ribbons'
-    ,$images_root = 'KSP_images/ribbons'
-    ,$ribbon_width = 98
-    ,$ribbon_height = 26
-    ,$output = null
-    ,$dbcnnx = null
-    ,$planets = null // ALL SOI bodies are called "planets" here.
-    ,$devices = null
-    ,$devices_ordered = null
-    ,$gt_devices = null
-    ,$effects = null
-    ,$user_id = null
+        $images_root = 'KSP_images/ribbons'
+        , $ribbon_width = 98
+        , $ribbon_height = 26
+        , $db_tables = array(
+            'ribbons' => array(
+                'schema' => "
+id INTEGER NOT NULL UNIQUE,
+data TEXT NOT NULL
+",
+            )
+        )
+        , $db
+        , $db_table_name
+        , $output
+        , $planets // ALL SOI bodies are called "planets" here.
+        , $devices
+        , $devices_ordered
+        , $gt_devices
+        , $effects
+        , $user_id
     ;
     
     function __construct(){
@@ -184,15 +190,16 @@ class Ribbons {
     
     static public function load_all(){
         if( ! static::init_database() ){ return; }
+        $table = static::$db_table_name;
+        $db = static::$db;
+        $read_data = $db->read($table,'*');
+        $db_err = $db->get_error();
         if(
-            $stmt = static::$dbcnnx->prepare("
-SELECT * FROM ".static::$ribbons_table."
-")
-            AND $stmt->execute()
-            AND $results = $stmt->fetchAll(PDO::FETCH_ASSOC)
+            ! empty($read_data)
+            AND empty($db_err)
         ){
             $ribbons = array();
-            foreach( $results as $row ){
+            foreach( $read_data as $row ){
                 if( ! $row['id'] ){ continue; }
                 $ribbons[$row['id']] = $row;
             }
@@ -259,84 +266,50 @@ SELECT * FROM ".static::$ribbons_table."
     }
     
     static private function init_database(){
-        // Robust file check for sleepy servers.
-        if( !is_writable(static::$db_file) || !is_writable(dirname(static::$db_file)) ){
-            sleep(5);
-            if( !is_writable(static::$db_file) || !is_writable(dirname(static::$db_file)) ){
-                sleep(5);
-                if( !is_writable(static::$db_file) || !is_writable(dirname(static::$db_file)) ){
-                    die('FATAL ERROR: The database file or directory doesn\'t exist or isn\'t writeable.');
-                }
-            }
+        if( ! empty( static::$db ) ){ return true; }
+        
+        include_once('class/Database.php');
+        $db = new Database;
+        $db_err = $db->get_error();
+        if( ! empty($db_err) ){
+            die(get_called_class().': Can\'t open DB.');
         }
-        if( ! empty( static::$dbcnnx ) ){ return true; }
-        try{
-            static::$dbcnnx = new PDO('sqlite:'.static::$db_file);
+        foreach( static::$db_tables as $key => $val ){
+            static::$db_table_name = $key;
+            break;
         }
-        catch( PDOException $Exception ){
-            static::$dbcnnx = false;
-            die('FATAL ERROR: An exception occurred when opening the database.');
-        }
+        $db_out = $db->check_add_tables(static::$db_tables);
+        $db_err = $db->get_error();
         if(
-            $stmt = static::$dbcnnx->prepare("
-SELECT name FROM sqlite_master
-WHERE type='table' AND name='".static::$ribbons_table."';
-")
-            AND $stmt->execute()
-            AND $result = $stmt->fetch(PDO::FETCH_ASSOC)
+            empty($db_out)
+            OR ! empty($db_err)
         ){
-            $table_exists = true;
-        }elseif(
-            $stmt = static::$dbcnnx->prepare("
-CREATE TABLE ".static::$ribbons_table."(
-id INTEGER NOT NULL UNIQUE
-,data TEXT NOT NULL
-);
-")
-            AND $stmt->execute()
-            AND $stmt = static::$dbcnnx->prepare("
-INSERT INTO ".static::$ribbons_table." (id,data)
-VALUES (0,'Admin/DefaultData')
-")
-            AND $stmt->execute()
-            AND $stmt->rowCount()
-        ){
-            $table_created = true;
-            die('NOTICE: A new table was created and tested. Please try again.');
-        }else{
-            die('FATAL ERROR: Table creation failed.');
+            die(get_called_class().': DB: Table check failed. '.$db_err);
         }
+        static::$db = $db;
         return true;
     }
 
     private function load_ribbons(){
         if( static::$user_id === null ){ return false; }
         static::init_database();
-        if(
-            $stmt = static::$dbcnnx->prepare("
-SELECT data FROM ".static::$ribbons_table."
-WHERE id=:id
-LIMIT 1
-")
-            AND $stmt->bindValue(':id', static::$user_id, PDO::PARAM_INT)
-            AND $stmt->execute()
-            AND $result = $stmt->fetch(PDO::FETCH_ASSOC)
-        ){
-            if(
-                ! empty($result['data'])
-            ){
-                if( ! $data = explode('|',$result['data']) ){
-                    die('Can\'t read db data.');
-                }
-                $_SESSION['ribbons'] = array();
-                $split_patt = '/^([^=]*)=(.*)$/';
-                foreach($data as $pair){
-                    $prop = preg_filter($split_patt,'$1',$pair);
-                    $val = preg_filter($split_patt,'$2',$pair);
-                    if( $prop AND $val ){
-                        $_SESSION['ribbons'][$prop] = $val;
-                    }
-                }
+        $table = static::$db_table_name;
+        $id = static::$user_id;
+        $db = static::$db;
+        $read_data = $db->read($table,'*',array('id'=>$id));
+        $db_err = $db->get_error();
+        if( ! empty($db_err) ){
+            die(get_called_class().': Can\'t read db data.');
+        }
+        if( empty($read_data[0]['data']) ){return;}
+        $data = explode('|',$read_data[0]['data']);
+        $_SESSION['ribbons'] = array();
+        $split_patt = '/^([^=]*)=(.*)$/';
+        foreach($data as $pair){
+            $prop = preg_filter($split_patt,'$1',$pair);
+            $val = preg_filter($split_patt,'$2',$pair);
+            if( $prop AND $val ){
+                $_SESSION['ribbons'][$prop] = $val;
             }
         }
     }
@@ -354,39 +327,17 @@ LIMIT 1
             $data .= $key.'='.$val;
             if( --$i ){ $data .= '|'; }
         }
-        
+        $table = static::$db_table_name;
+        $db = static::$db;
+        $write_data = array('id'=>$id,'data'=>$data);
+        $write_data = array(array_keys($write_data),array_values($write_data));
+        $row_count = $db->write($table,$write_data,true);
+        $db_err = $db->get_error();
         if(
-            $stmt = static::$dbcnnx->prepare("
-SELECT data FROM ".static::$ribbons_table."
-WHERE id=:id
-LIMIT 1
-")
-            AND $stmt->bindValue(':id', $id, PDO::PARAM_INT)
-            AND $stmt->execute()
-            AND $result = $stmt->fetch(PDO::FETCH_ASSOC)
-            AND $stmt = static::$dbcnnx->prepare("
-UPDATE ".static::$ribbons_table." SET data=:data
-WHERE id=:id
-")
-            AND $stmt->bindValue(':data', $data, PDO::PARAM_STR)
-            AND $stmt->bindValue(':id', $id, PDO::PARAM_INT)
-            AND $stmt->execute()
-            AND $result = $stmt->rowCount()
+            empty($row_count)
+            OR ! empty($db_err)
         ){
-            $success = true;
-        }elseif(
-            $stmt = static::$dbcnnx->prepare("
-INSERT INTO ".static::$ribbons_table." (id,data)
-VALUES (:id,:data)
-")
-            AND $stmt->bindValue(':id', $id, PDO::PARAM_INT)
-            AND $stmt->bindValue(':data', $data, PDO::PARAM_STR)
-            AND $stmt->execute()
-            AND $result = $stmt->rowCount()
-        ){
-            $success = true;
-        }else{
-            die('FATAL ERROR: Can\'t save data.<pre>'.print_r($result,true));
+            die('FATAL ERROR: Can\'t save data.');
         }
     }
     
@@ -1239,3 +1190,5 @@ VALUES (:id,:data)
     }
     
 }
+
+?>

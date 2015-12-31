@@ -1,3 +1,7 @@
+
+// The KSP Ribbon Generator was created by Ezriilc Swifthawk in August of 2014, based on an original design by Moustachauve.
+// Anyone is free to use and/or modify this code, with proper credit given as above.
+
 $(document).ready(function(){
     
     $('.ribbons input[type="submit"]').not('.generate').prop('disabled',true);
@@ -253,6 +257,3 @@ $(document).ready(function(){
     };
     
 });
-
-// The KSP Ribbon Generator was created by Erickson Swift in August of 2014, based on an original design by Moustachauve.
-// All rights reserved.  Do not use, publish, duplicate or extend any of this code without expressed, written permission.
